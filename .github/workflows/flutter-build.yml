@@ -59,6 +59,9 @@ jobs:
           else
              sed -i 's/id "com.android.application"/id "com.android.application"\n    id "com.google.gms.google-services"/' android/app/build.gradle
              sed -i 's/dependencies {/dependencies {\n    implementation platform("com.google.firebase:firebase-bom:32.7.0")/' android/app/build.gradle
+             
+             # Override minimum Android SDK to satisfy latest cloud_firestore requirement
+             sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 23/' android/app/build.gradle
           fi
           
           if grep -q "google-services" android/settings.gradle; then
