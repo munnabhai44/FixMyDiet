@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "277737054511",
+    "project_id": "fixmydiet-45322",
+    "storage_bucket": "fixmydiet-45322.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:277737054511:android:4cbca45c27af112e7981da",
+        "android_client_info": {
+          "package_name": "com.deep.FixMyDiet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAIMXIWFKu6KLGAHwfOSuNHV2LiN-9xdMo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

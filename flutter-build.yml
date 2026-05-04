@@ -1,0 +1,69 @@
+name: Build Flutter APK
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.0'
+          channel: 'stable'
+
+      - name: Create Flutter Platform Folders (if missing)
+        run: |
+          if [ ! -d "android" ]; then
+            echo "Android folder missing, running flutter create..."
+            flutter create --project-name fix_my_diet --org com.antigravity .
+          fi
+
+      - name: Move google-services.json to Android App Folder
+        run: |
+          if [ -f "google-services.json" ]; then
+            echo "Found google-services.json in root. Moving to android/app/"
+            mv google-services.json android/app/google-services.json
+          else
+            echo "Warning: google-services.json not found in the root directory!"
+          fi
+
+      - name: Add Firebase and Google Services Plugins to build.gradle
+        run: |
+          if grep -q "com.google.gms.google-services" android/app/build.gradle; then
+             echo "Already added."
+          else
+             # Basic modifications for firebase if it's newly created
+             sed -i 's/id "com.android.application"/id "com.android.application"\n    id "com.google.gms.google-services"/' android/app/build.gradle
+             sed -i 's/dependencies {/dependencies {\n    implementation platform("com.google.firebase:firebase-bom:32.7.0")/' android/app/build.gradle
+          fi
+          
+          if grep -q "google-services" android/settings.gradle; then
+            echo "Already in settings"
+          else
+            sed -i 's/plugins {/plugins {\n    id "com.google.gms.google-services" version "4.4.0" apply false/' android/settings.gradle
+          fi
+
+      - name: Install Dependencies
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --release
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: FixMyDiet-APK
+          path: build/app/outputs/flutter-apk/app-release.apk
