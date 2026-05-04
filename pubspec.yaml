@@ -13,7 +13,7 @@ dependencies:
   firebase_core: any
   firebase_auth: any
   cloud_firestore: any
-  google_sign_in: any
+  google_sign_in: ^6.2.1
   google_generative_ai: any
   shared_preferences: any
   google_fonts: any
