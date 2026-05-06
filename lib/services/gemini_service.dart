@@ -8,7 +8,7 @@ class GeminiService {
   final String _apiKey = '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';
   final String _endpoint = 'https://api.groq.com/openai/v1/chat/completions';
   
-  // Using Groq's lightning-fast Llama 3 model
+  // Using Groq's lightning-fast Llama 3.3 model
   final String _model = 'llama-3.3-70b-versatile';
 
   Future<String> _generateResponse(String prompt) async {
@@ -21,9 +21,11 @@ class GeminiService {
       body: jsonEncode({
         'model': _model,
         'messages': [
+          {'role': 'system', 'content': 'You are a strict JSON API. Output exactly the requested JSON schema without markdown blocks.'},
           {'role': 'user', 'content': prompt}
         ],
-        'temperature': 0.7,
+        'temperature': 0.3,
+        'response_format': {'type': 'json_object'}
       }),
     );
 
@@ -38,7 +40,7 @@ class GeminiService {
   Future<DietPlan> generateDietPlan(SurveyData survey) async {
     final prompt = '''
     Act as a professional Ayurvedic Vaidya and modern Dietician for an Indian user.
-    Generate a 7-day diet plan and Ayurvedic routine based on this data:
+    Generate a complete 7-day diet plan and Ayurvedic routine based on this data:
     - Age: ${survey.age}, Gender: ${survey.gender}
     - Weight: ${survey.weightKg}kg, Height: ${survey.heightCm}cm
     - Activity Level: ${survey.activityLevel}
@@ -48,7 +50,8 @@ class GeminiService {
     - Ayurvedic Complaints: ${survey.ayurvedicComplaints.join(', ')}
     - Language: ${survey.selectedLanguage}
 
-    Respond ONLY with a valid JSON object matching this exact structure:
+    Respond ONLY with a valid JSON object matching this exact structure. 
+    CRITICAL: The "days" array MUST contain exactly 7 objects!
     {
       "dailyCalorieTarget": 2000,
       "estimatedWeeklyCostInr": 1500,
@@ -74,7 +77,6 @@ class GeminiService {
 
     try {
       final text = await _generateResponse(prompt);
-      // Clean up markdown block if present
       String cleanText = text.replaceAll('```json', '').replaceAll('```', '').trim();
       final decoded = jsonDecode(cleanText);
       return DietPlan.fromMap(decoded);
@@ -110,7 +112,6 @@ class GeminiService {
 
     try {
       final text = await _generateResponse(prompt);
-      // Clean up markdown block if present
       String cleanText = text.replaceAll('```json', '').replaceAll('```', '').trim();
       final List decoded = jsonDecode(cleanText);
       return decoded.map((e) => Recipe.fromMap(e)).toList();
