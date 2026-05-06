@@ -9,7 +9,7 @@ class GeminiService {
   final String _endpoint = 'https://api.groq.com/openai/v1/chat/completions';
   
   // Using Groq's lightning-fast Llama 3 model
-  final String _model = 'llama3-70b-8192';
+  final String _model = 'llama-3.3-70b-versatile';
 
   Future<String> _generateResponse(String prompt) async {
     final response = await http.post(
