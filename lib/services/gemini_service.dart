@@ -1,112 +1,85 @@
 import 'dart:convert';
-import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:fix_my_diet/core/constants/app_constants.dart';
-import 'package:fix_my_diet/core/utils/bmi_calculator.dart';
-import 'package:fix_my_diet/features/survey/models/survey_data.dart';
+import 'package:http/http.dart' as http;
 import 'package:fix_my_diet/features/plan_generation/models/diet_plan.dart';
 import 'package:fix_my_diet/features/recipe_finder/models/recipe.dart';
+import 'package:fix_my_diet/features/survey/models/survey_data.dart';
 
 class GeminiService {
-  late final GenerativeModel _model;
+  final String _apiKey = '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';
+  final String _endpoint = 'https://api.groq.com/openai/v1/chat/completions';
+  
+  // Using Groq's lightning-fast Llama 3 model
+  final String _model = 'llama3-70b-8192';
 
-  GeminiService() {
-    _model = GenerativeModel(
-      model: 'gemini-pro',
-      apiKey: AppConstants.geminiApiKey,
-      generationConfig: GenerationConfig(
-        temperature: 0.7,
-        maxOutputTokens: 8192,
-        responseMimeType: 'application/json',
-      ),
+  Future<String> _generateResponse(String prompt) async {
+    final response = await http.post(
+      Uri.parse(_endpoint),
+      headers: {
+        'Authorization': 'Bearer $_apiKey',
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'model': _model,
+        'messages': [
+          {'role': 'user', 'content': prompt}
+        ],
+        'temperature': 0.7,
+      }),
     );
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      return data['choices'][0]['message']['content'];
+    } else {
+      throw Exception('Groq Error: ${response.body}');
+    }
   }
 
   Future<DietPlan> generateDietPlan(SurveyData survey) async {
-    final bmi = BmiCalculator.calculate(survey.weightKg, survey.heightCm);
-    final bmiCategory = BmiCalculator.category(bmi);
-    final calories = BmiCalculator.calculateCalories(
-      weightKg: survey.weightKg,
-      heightCm: survey.heightCm,
-      age: survey.age,
-      gender: survey.gender,
-      activityLevel: survey.activityLevel,
-      goal: survey.goal,
-    );
-
     final prompt = '''
-You are an expert clinical dietician and an Ayurvedic Vaidya specializing in Indian lifestyles and Indian household cooking. Generate a comprehensive, holistic health plan for the following person:
+    Act as a professional Ayurvedic Vaidya and modern Dietician for an Indian user.
+    Generate a 7-day diet plan and Ayurvedic routine based on this data:
+    - Age: ${survey.age}, Gender: ${survey.gender}
+    - Weight: ${survey.weightKg}kg, Height: ${survey.heightCm}cm
+    - Activity Level: ${survey.activityLevel}
+    - Diet Type: ${survey.dietType}
+    - Medical Conditions: ${survey.medicalConditions.join(', ')}
+    - Deficiencies: ${survey.deficiencies.join(', ')}
+    - Ayurvedic Complaints: ${survey.ayurvedicComplaints.join(', ')}
+    - Language: ${survey.selectedLanguage}
 
-PATIENT PROFILE:
-- Age: ${survey.age} years
-- Gender: ${survey.gender}
-- Height: ${survey.heightCm} cm
-- Weight: ${survey.weightKg} kg
-- BMI: ${bmi.toStringAsFixed(1)} ($bmiCategory)
-- Health Goal: ${survey.goal}
-- Activity Level: ${survey.activityLevel}
-- Diet Preference: ${survey.dietType}
-- Weekly Budget: ${survey.budgetLevel}
-- Medical Conditions: ${survey.medicalConditions.isEmpty ? 'None' : survey.medicalConditions.join(', ')}
-- Nutritional Deficiencies: ${survey.deficiencies.isEmpty ? 'None' : survey.deficiencies.join(', ')}
-- Holistic/Ayurvedic Complaints: ${survey.ayurvedicComplaints.isEmpty ? 'None' : survey.ayurvedicComplaints.join(', ')}
-- Additional Notes: ${survey.additionalNotes.isEmpty ? 'None' : survey.additionalNotes}
-- Estimated Daily Calorie Target: $calories kcal
-
-CRITICAL INSTRUCTIONS:
-
-1. MEDICAL SAFETY: STRICTLY avoid ALL trigger foods for their medical conditions:
-   - GERD: No citrus, tomato, spicy food, fried food, caffeine, chocolate, raw onion
-   - Diabetes: No high GI foods, no white rice (use brown), no sugar, limited fruits
-   - PCOS: No refined carbs, no dairy excess, no sugar, anti-inflammatory focus
-   - Thyroid (Hypo): No soy, no raw cruciferous vegetables, no processed food
-   - High BP: Low sodium, no pickles, no papad, no processed food
-   - Kidney Stones: Low oxalate, more water, limited spinach/tomato
-   - IBS: Low FODMAP, no beans initially, no raw salads
-   - Fatty Liver: No fried food, no sugar
-
-2. BUDGET COMPLIANCE: Only suggest foods within ${survey.budgetLevel}. For strict budget, use ONLY common Indian kitchen staples.
-
-3. INDIAN HOUSEHOLD MEASUREMENTS: Use katori (bowl), glass, chamach (spoon), roti count, piece count. NOT cups or grams.
-
-4. DEFICIENCY TARGETING: Include foods rich in their deficient nutrients.
-
-5. VARIETY: Each of the 7 days must have DIFFERENT meals. Realistic for an Indian household.
-
-6. AYURVEDIC REMEDIES: Suggest PRACTICAL, AFFORDABLE, EASILY AVAILABLE homemade remedies with EXACT quantities.
-
-7. LANGUAGE: ALL text values MUST be in ${survey.selectedLanguage}. Keep JSON keys in English only.
-
-RETURN ONLY valid JSON with this structure:
-{
-  "daily_calorie_target": $calories,
-  "estimated_weekly_cost_inr": 850,
-  "diet_plan": [
-    {"day": 1, "meals": {"early_morning": "...", "breakfast": "...", "lunch": "...", "evening_snack": "...", "dinner": "..."}},
-    {"day": 2, "meals": {"early_morning": "...", "breakfast": "...", "lunch": "...", "evening_snack": "...", "dinner": "..."}},
-    {"day": 3, "meals": {"early_morning": "...", "breakfast": "...", "lunch": "...", "evening_snack": "...", "dinner": "..."}},
-    {"day": 4, "meals": {"early_morning": "...", "breakfast": "...", "lunch": "...", "evening_snack": "...", "dinner": "..."}},
-    {"day": 5, "meals": {"early_morning": "...", "breakfast": "...", "lunch": "...", "evening_snack": "...", "dinner": "..."}},
-    {"day": 6, "meals": {"early_morning": "...", "breakfast": "...", "lunch": "...", "evening_snack": "...", "dinner": "..."}},
-    {"day": 7, "meals": {"early_morning": "...", "breakfast": "...", "lunch": "...", "evening_snack": "...", "dinner": "..."}}
-  ],
-  "ayurveda_routine": {
-    "internal_remedies": ["Remedy 1 with exact dosage and timing", "Remedy 2", "Remedy 3", "Remedy 4", "Remedy 5"],
-    "external_applications": ["Application 1 with ingredients and frequency", "Application 2", "Application 3"],
-    "lifestyle_tips": ["Tip 1", "Tip 2", "Tip 3", "Tip 4", "Tip 5"]
-  }
-}
-''';
+    Respond ONLY with a valid JSON object matching this exact structure:
+    {
+      "dailyCalorieTarget": 2000,
+      "estimatedWeeklyCostInr": 1500,
+      "days": [
+        {
+          "earlyMorning": "warm water",
+          "breakfast": "poha",
+          "lunch": "dal chawal",
+          "eveningSnack": "makhana",
+          "dinner": "khichdi",
+          "mealEntries": [
+             {"title": "Breakfast", "time": "8:00 AM", "description": "Poha", "colorValue": 4294198070}
+          ]
+        }
+      ],
+      "ayurvedaRoutine": {
+        "internalRemedies": ["Triphala at night"],
+        "externalApplications": ["Oil massage"],
+        "lifestyleTips": ["Sleep early"]
+      }
+    }
+    ''';
 
     try {
-      final response = await _model.generateContent([Content.text(prompt)]);
-      final text = response.text ?? '';
-      final jsonStr = _extractJson(text);
-      final map = json.decode(jsonStr) as Map<String, dynamic>;
-      map['generatedAt'] = DateTime.now().toIso8601String();
-      map['language'] = survey.selectedLanguage;
-      return DietPlan.fromMap(map);
+      final text = await _generateResponse(prompt);
+      // Clean up markdown block if present
+      String cleanText = text.replaceAll('```json', '').replaceAll('```', '').trim();
+      final decoded = jsonDecode(cleanText);
+      return DietPlan.fromMap(decoded);
     } catch (e) {
-      throw Exception('Failed to generate diet plan: $e');
+      throw Exception('Failed to parse diet plan: $e');
     }
   }
 
@@ -118,62 +91,31 @@ RETURN ONLY valid JSON with this structure:
     required String language,
   }) async {
     final prompt = '''
-You are an expert Indian home cook and nutritionist. A user wants to make something using ingredients they have at home.
-
-AVAILABLE INGREDIENTS: ${ingredients.join(', ')}
-MEAL TYPE WANTED: $mealType
-DIET PREFERENCE: $dietType
-HEALTH PREFERENCE: ${healthy ? 'Healthy' : 'Any'}
-LANGUAGE: $language
-
-INSTRUCTIONS:
-1. Suggest exactly 5 Indian recipes using MOSTLY these ingredients. Common staples like salt, oil, water, basic spices (haldi, mirch, jeera) are assumed available.
-2. Prioritize HEALTHY options if health preference is "Healthy".
-3. Each recipe should be practical, common in Indian households, and doable in under 30 minutes.
-4. Provide step-by-step instructions a beginner can follow.
-5. ALL text must be in $language.
-
-RETURN ONLY valid JSON:
-{
-  "recipes": [
-    {
-      "name": "Recipe Name",
-      "description": "One-line description",
-      "cooking_time_minutes": 15,
-      "health_rating": "healthy",
-      "difficulty": "easy",
-      "uses_all_ingredients": true,
-      "ingredients_needed": ["ingredient 1", "ingredient 2"],
-      "steps": ["Step 1...", "Step 2...", "Step 3...", "Step 4..."],
-      "nutrition_note": "Rich in protein and fiber",
-      "youtube_search_query": "recipe name healthy"
-    }
-  ]
-}
-''';
+    Suggest 5 Indian $mealType recipes using these ingredients: ${ingredients.join(', ')}.
+    Diet: $dietType, Healthy: $healthy, Language: $language.
+    
+    Respond ONLY with a valid JSON array of objects matching this exact structure:
+    [
+      {
+        "name": "Recipe Name",
+        "description": "Short description",
+        "cookingTimeMinutes": 20,
+        "healthRating": "A",
+        "nutritionNote": "High protein",
+        "steps": ["Step 1", "Step 2"],
+        "youtubeSearchQuery": "Recipe Name in Hindi"
+      }
+    ]
+    ''';
 
     try {
-      final response = await _model.generateContent([Content.text(prompt)]);
-      final text = response.text ?? '';
-      final jsonStr = _extractJson(text);
-      final map = json.decode(jsonStr) as Map<String, dynamic>;
-      final recipes = (map['recipes'] as List).map((r) => Recipe.fromMap(r)).toList();
-      return recipes;
+      final text = await _generateResponse(prompt);
+      // Clean up markdown block if present
+      String cleanText = text.replaceAll('```json', '').replaceAll('```', '').trim();
+      final List decoded = jsonDecode(cleanText);
+      return decoded.map((e) => Recipe.fromMap(e)).toList();
     } catch (e) {
-      throw Exception('Failed to find recipes: $e');
+      throw Exception('Failed to parse recipes: $e');
     }
-  }
-
-  String _extractJson(String text) {
-    var cleaned = text.trim();
-    if (cleaned.startsWith('```json')) {
-      cleaned = cleaned.substring(7);
-    } else if (cleaned.startsWith('```')) {
-      cleaned = cleaned.substring(3);
-    }
-    if (cleaned.endsWith('```')) {
-      cleaned = cleaned.substring(0, cleaned.length - 3);
-    }
-    return cleaned.trim();
   }
 }
