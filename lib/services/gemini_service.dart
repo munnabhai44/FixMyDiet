@@ -11,7 +11,7 @@ class GeminiService {
 
   GeminiService() {
     _model = GenerativeModel(
-      model: 'gemini-1.5-flash',
+      model: 'gemini-pro',
       apiKey: AppConstants.geminiApiKey,
       generationConfig: GenerationConfig(
         temperature: 0.7,
