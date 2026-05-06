@@ -164,7 +164,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
                               leading: const Icon(Icons.logout, color: Colors.red),
                               title: const Text('Logout', style: TextStyle(color: Colors.red)),
                               onTap: () async {
-                                await ref.read(authProvider.notifier).signOut();
+                                await ref.read(authServiceProvider).signOut();
                                 if (context.mounted) Navigator.of(context).pushReplacementNamed('/');
                               },
                             ),
