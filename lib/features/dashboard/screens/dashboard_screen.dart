@@ -47,7 +47,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
           _isLoading = false;
         });
         
-        // If no plan, go to survey
         if (_plan == null && !_isLoading) {
           Navigator.of(context).pushReplacementNamed('/survey');
         }
@@ -63,22 +62,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator(color: AppColors.primary)));
-    }
-
-    if (_plan == null || _survey == null) {
-      return const Scaffold(body: Center(child: Text('No data found.')));
-    }
+    if (_isLoading) return const Scaffold(body: Center(child: CircularProgressIndicator(color: AppColors.primary)));
+    if (_plan == null || _survey == null) return const Scaffold(body: Center(child: Text('No data found.')));
 
     final bmi = BmiCalculator.calculate(_survey!.weightKg, _survey!.heightCm);
 
     return Scaffold(
       backgroundColor: AppColors.background,
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RecipeFinderScreen()));
-        },
+        onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RecipeFinderScreen())),
         icon: const Icon(Icons.restaurant_menu),
         label: const Text('What Can I Cook?'),
         backgroundColor: AppColors.secondary,
@@ -87,7 +79,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
         headerSliverBuilder: (context, innerBoxIsScrolled) {
           return [
             SliverAppBar(
-              expandedHeight: 180.0,
+              expandedHeight: 200.0,
               floating: false,
               pinned: true,
               backgroundColor: AppColors.primary,
@@ -97,37 +89,36 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
                   child: SafeArea(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(20, 60, 20, 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text('Your Health Plan', style: GoogleFonts.poppins(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
-                              const SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  _buildStatChip(Icons.local_fire_department, '${_plan!.dailyCalorieTarget} kcal/day'),
-                                  const SizedBox(width: 8),
-                                  _buildStatChip(Icons.account_balance_wallet, '₹${_plan!.estimatedWeeklyCostInr}/week'),
-                                ],
+                              Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.2),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text('BMI', style: GoogleFonts.poppins(color: Colors.white70, fontSize: 10)),
+                                    Text(bmi.toStringAsFixed(1), style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                                  ],
+                                ),
                               ),
                             ],
                           ),
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text('BMI', style: GoogleFonts.poppins(color: Colors.white70, fontSize: 12)),
-                                Text(bmi.toStringAsFixed(1), style: GoogleFonts.poppins(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-                              ],
-                            ),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              _buildStatChip(Icons.local_fire_department, '${_plan!.dailyCalorieTarget} kcal/day'),
+                              const SizedBox(width: 8),
+                              _buildStatChip(Icons.account_balance_wallet, '₹${_plan!.estimatedWeeklyCostInr}/week'),
+                            ],
                           ),
                         ],
                       ),
@@ -154,7 +145,33 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
                 IconButton(
                   icon: const Icon(Icons.person, color: Colors.white),
                   onPressed: () {
-                    // Navigate to profile
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Account Profile'),
+                        content: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ListTile(
+                              leading: const Icon(Icons.language),
+                              title: const Text('Change Language'),
+                              onTap: () {
+                                Navigator.pop(context);
+                                Navigator.of(context).pushReplacementNamed('/survey');
+                              },
+                            ),
+                            ListTile(
+                              leading: const Icon(Icons.logout, color: Colors.red),
+                              title: const Text('Logout', style: TextStyle(color: Colors.red)),
+                              onTap: () async {
+                                await ref.read(authProvider.notifier).signOut();
+                                if (context.mounted) Navigator.of(context).pushReplacementNamed('/');
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
                   },
                 ),
               ],
