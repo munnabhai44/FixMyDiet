@@ -264,56 +264,81 @@ class _RecipeFinderScreenState extends ConsumerState<RecipeFinderScreen> {
               final recipe = _recipes![index];
               return Card(
                 margin: const EdgeInsets.only(bottom: 16),
-                child: Theme(
-                  data: ThemeData().copyWith(dividerColor: Colors.transparent),
-                  child: ExpansionTile(
-                    title: Text(recipe.name, style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 16)),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const SizedBox(height: 4),
-                        Text(recipe.description, style: GoogleFonts.poppins(fontSize: 13, color: AppColors.textSecondary)),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            Icon(Icons.timer, size: 14, color: AppColors.accent),
-                            const SizedBox(width: 4),
-                            Text('${recipe.cookingTimeMinutes}m', style: GoogleFonts.poppins(fontSize: 12)),
-                            const SizedBox(width: 12),
-                            Icon(Icons.health_and_safety, size: 14, color: AppColors.primary),
-                            const SizedBox(width: 4),
-                            Text(recipe.healthRating.toUpperCase(), style: GoogleFonts.poppins(fontSize: 12)),
-                          ],
-                        ),
-                      ],
-                    ),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.all(16),
+                  title: Text(recipe.name, style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 16)),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16),
+                      const SizedBox(height: 4),
+                      Text(recipe.description, style: GoogleFonts.poppins(fontSize: 13, color: AppColors.textSecondary)),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Icon(Icons.timer, size: 14, color: AppColors.accent),
+                          const SizedBox(width: 4),
+                          Text('${recipe.cookingTimeMinutes}m', style: GoogleFonts.poppins(fontSize: 12)),
+                          const SizedBox(width: 12),
+                          Icon(Icons.health_and_safety, size: 14, color: AppColors.primary),
+                          const SizedBox(width: 4),
+                          Text(recipe.healthRating.toUpperCase(), style: GoogleFonts.poppins(fontSize: 12)),
+                        ],
+                      ),
+                    ],
+                  ),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+                      builder: (context) => Container(
+                        padding: const EdgeInsets.all(24),
+                        height: MediaQuery.of(context).size.height * 0.8,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(color: AppColors.lightYellow.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(8)),
-                              child: Text(recipe.nutritionNote, style: GoogleFonts.poppins(fontSize: 12, fontStyle: FontStyle.italic)),
-                            ),
-                            const SizedBox(height: 16),
-                            Text('How to make it:', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
-                            const SizedBox(height: 8),
-                            ...recipe.steps.map((step) => Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const Text('• ', style: TextStyle(fontWeight: FontWeight.bold)),
-                                  Expanded(child: Text(step, style: GoogleFonts.poppins(fontSize: 13))),
-                                ],
-                              ),
-                            )),
+                            Text(recipe.name, style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold)),
                             const SizedBox(height: 16),
                             SizedBox(
                               width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: Text('Nutrition Information', style: GoogleFonts.poppins(fontWeight: FontWeight.bold)),
+                                      content: Text(recipe.nutritionNote, style: GoogleFonts.poppins(fontSize: 14, height: 1.5)),
+                                      actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))],
+                                    )
+                                  );
+                                },
+                                icon: const Icon(Icons.info_outline),
+                                label: const Text('View Nutrition Info'),
+                                style: ElevatedButton.styleFrom(backgroundColor: AppColors.lightYellow, foregroundColor: AppColors.textPrimary, elevation: 0),
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                            Text('How to make it:', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18)),
+                            const SizedBox(height: 12),
+                            Expanded(
+                              child: ListView(
+                                children: recipe.steps.map((step) => Padding(
+                                  padding: const EdgeInsets.only(bottom: 12),
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text('• ', style: TextStyle(fontWeight: FontWeight.bold)),
+                                      Expanded(child: Text(step, style: GoogleFonts.poppins(fontSize: 14))),
+                                    ],
+                                  ),
+                                )).toList(),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            SizedBox(
+                              width: double.infinity,
+                              height: 50,
                               child: OutlinedButton.icon(
                                 onPressed: () => _openYouTube(recipe.youtubeSearchQuery),
                                 icon: const Icon(Icons.play_circle_fill, color: Colors.red),
@@ -323,9 +348,9 @@ class _RecipeFinderScreenState extends ConsumerState<RecipeFinderScreen> {
                             ),
                           ],
                         ),
-                      ),
-                    ],
-                  ),
+                      )
+                    );
+                  },
                 ),
               );
             },
