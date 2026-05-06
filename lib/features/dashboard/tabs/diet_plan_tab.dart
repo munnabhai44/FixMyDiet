@@ -101,6 +101,25 @@ class _DietPlanTabState extends State<DietPlanTab> {
                               meal.description,
                               style: GoogleFonts.poppins(fontSize: 14, color: AppColors.textPrimary, height: 1.4),
                             ),
+                            const SizedBox(height: 12),
+                            SizedBox(
+                              height: 30,
+                              child: TextButton.icon(
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: Text('Nutrition Information', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18)),
+                                      content: Text('Meal: ${meal.description}\n\nEstimated Calories: ~${(widget.plan.dailyCalorieTarget / 4).round()} kcal\nMacros: Balanced ratio for your target.', style: GoogleFonts.poppins(fontSize: 14, height: 1.5)),
+                                      actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))],
+                                    )
+                                  );
+                                },
+                                icon: const Icon(Icons.info_outline, size: 16),
+                                label: const Text('Nutrition Info', style: TextStyle(fontSize: 12)),
+                                style: TextButton.styleFrom(padding: EdgeInsets.zero, foregroundColor: AppColors.primary),
+                              ),
+                            ),
                           ],
                         ),
                       ),
