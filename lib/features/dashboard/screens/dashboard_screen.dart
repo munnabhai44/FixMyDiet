@@ -144,11 +144,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
     final bmi = _survey!.weightKg / ((_survey!.heightCm / 100) * (_survey!.heightCm / 100));
     final isApproved = bmi < 24.0;
     showDialog(context: context, builder: (_) => AlertDialog(
-      title: Text(isApproved ? 'Cheat Meal Approved! 🎉' : 'Cheat Meal Denied! 🚨'),
+      title: Text(isApproved ? AppTranslations.t('Cheat Meal Approved! 🎉', _survey?.selectedLanguage ?? 'English') : AppTranslations.t('Cheat Meal Denied! 🚨', _survey?.selectedLanguage ?? 'English')),
       content: Text(isApproved 
-        ? 'Your BMI is looking good. You can have 1 Samosa or a slice of Pizza today. Enjoy!' 
-        : 'Stay strong! Have roasted Makhana or 1 piece of Dark Chocolate instead to keep your progress.'),
-      actions: [TextButton(onPressed: ()=>Navigator.pop(context), child: const Text('Okay!'))],
+        ? AppTranslations.t('Your BMI is looking good. AI suggests: 1 Air-Fried Samosa or a bowl of Wheat Pasta.', _survey?.selectedLanguage ?? 'English') 
+        : AppTranslations.t('Stay strong! Have roasted Makhana or 1 piece of Dark Chocolate instead to keep your progress.', _survey?.selectedLanguage ?? 'English')),
+      actions: [TextButton(onPressed: ()=>Navigator.pop(context), child: Text(AppTranslations.t('Okay!', _survey?.selectedLanguage ?? 'English')))],
     ));
   }
 
@@ -260,7 +260,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Text(AppTranslations.t('BMI', _selectedLanguage), style: GoogleFonts.poppins(color: Colors.white70, fontSize: 10)),
+                                    Text(AppTranslations.t('BMI', _survey?.selectedLanguage ?? 'English'), style: GoogleFonts.poppins(color: Colors.white70, fontSize: 10)),
                                     
                                     Stack(
                                       alignment: Alignment.center,
@@ -464,7 +464,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
                         child: Container(
                           width: 100, height: 100,
                           decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.blue.withValues(alpha: 0.3)),
-                          child: Center(child: Text(breathingIn ? AppTranslations.t('Breathe In', _selectedLanguage) : AppTranslations.t('Breathe Out', _selectedLanguage), style: const TextStyle(color: Colors.blue))),
+                          child: Center(child: Text(breathingIn ? AppTranslations.t('Breathe In', _survey?.selectedLanguage ?? 'English') : AppTranslations.t('Breathe Out', _survey?.selectedLanguage ?? 'English'), style: const TextStyle(color: Colors.blue))),
                         ),
                       );
                     },
@@ -494,7 +494,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
           children: [
             const Icon(Icons.air, color: Colors.blue),
             const SizedBox(width: 8),
-            Text(AppTranslations.t('Pre-meal Breathing Exercise', _selectedLanguage), style: GoogleFonts.poppins(color: Colors.blue.shade700, fontWeight: FontWeight.bold)),
+            Text(AppTranslations.t('Pre-meal Breathing Exercise', _survey?.selectedLanguage ?? 'English'), style: GoogleFonts.poppins(color: Colors.blue.shade700, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
@@ -520,7 +520,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(AppTranslations.t('Your Prakriti (Dosha)', _selectedLanguage), style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.purple.shade700)),
+                  Text(AppTranslations.t('Your Prakriti (Dosha)', _survey?.selectedLanguage ?? 'English'), style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.purple.shade700)),
                   Text('Vata-Pitta Dominant', style: GoogleFonts.poppins(fontSize: 12, color: AppColors.textPrimary)),
                 ],
               ),
@@ -547,7 +547,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
               ));
 
             },
-            child: const Text(AppTranslations.t('Retest', _selectedLanguage), style: TextStyle(fontSize: 12)),
+            child: Text(AppTranslations.t('Retest', _survey?.selectedLanguage ?? 'English'), style: TextStyle(fontSize: 12)),
           )
         ],
       ),
@@ -571,7 +571,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(AppTranslations.t('Dadi Maa Ke Nuskhe', _selectedLanguage), style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: AppColors.secondary)),
+                Text(AppTranslations.t('Dadi Maa Ke Nuskhe', _survey?.selectedLanguage ?? 'English'), style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: AppColors.secondary)),
                 Text(AppTranslations.t([
                   'Having digestion issues? Soak 1 tsp Ajwain in warm water overnight and drink it first thing in the morning!',
                   'Sore throat? Boil Tulsi leaves, ginger, and a pinch of black pepper. Add honey before drinking.',
@@ -583,7 +583,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
                   'Low energy? Eat 2 overnight soaked almonds and 1 walnut every morning.',
                   'Joint pain? Massage with warm mustard oil infused with garlic cloves.',
                   'Trouble sleeping? Rub a few drops of warm ghee on the soles of your feet before bed.'
-                ][DateTime.now().day % 10], _selectedLanguage), style: GoogleFonts.poppins(fontSize: 12, color: AppColors.textPrimary)),
+                ][DateTime.now().day % 10], _survey?.selectedLanguage ?? 'English'), style: GoogleFonts.poppins(fontSize: 12, color: AppColors.textPrimary)),
               ],
             ),
           ),
