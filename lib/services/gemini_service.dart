@@ -51,26 +51,26 @@ class GeminiService {
     - Language: ${survey.selectedLanguage}
 
     Respond ONLY with a valid JSON object matching this exact structure. 
-    CRITICAL: The "days" array MUST contain exactly 7 objects!
+    CRITICAL: The "diet_plan" array MUST contain exactly 7 objects!
     {
-      "dailyCalorieTarget": 2000,
-      "estimatedWeeklyCostInr": 1500,
-      "days": [
+      "daily_calorie_target": 2000,
+      "estimated_weekly_cost_inr": 1500,
+      "diet_plan": [
         {
-          "earlyMorning": "warm water",
-          "breakfast": "poha",
-          "lunch": "dal chawal",
-          "eveningSnack": "makhana",
-          "dinner": "khichdi",
-          "mealEntries": [
-             {"title": "Breakfast", "time": "8:00 AM", "description": "Poha", "colorValue": 4294198070}
-          ]
+          "day": 1,
+          "meals": {
+            "early_morning": "warm water",
+            "breakfast": "poha",
+            "lunch": "dal chawal",
+            "evening_snack": "makhana",
+            "dinner": "khichdi"
+          }
         }
       ],
-      "ayurvedaRoutine": {
-        "internalRemedies": ["Triphala at night"],
-        "externalApplications": ["Oil massage"],
-        "lifestyleTips": ["Sleep early"]
+      "ayurveda_routine": {
+        "internal_remedies": ["Triphala at night"],
+        "external_applications": ["Oil massage"],
+        "lifestyle_tips": ["Sleep early"]
       }
     }
     ''';
@@ -96,25 +96,28 @@ class GeminiService {
     Suggest 5 Indian $mealType recipes using these ingredients: ${ingredients.join(', ')}.
     Diet: $dietType, Healthy: $healthy, Language: $language.
     
-    Respond ONLY with a valid JSON array of objects matching this exact structure:
-    [
-      {
-        "name": "Recipe Name",
-        "description": "Short description",
-        "cookingTimeMinutes": 20,
-        "healthRating": "A",
-        "nutritionNote": "High protein",
-        "steps": ["Step 1", "Step 2"],
-        "youtubeSearchQuery": "Recipe Name in Hindi"
-      }
-    ]
+    Respond ONLY with a valid JSON object matching this exact structure:
+    {
+      "recipes": [
+        {
+          "name": "Recipe Name",
+          "description": "Short description",
+          "cookingTimeMinutes": 20,
+          "healthRating": "A",
+          "nutritionNote": "High protein",
+          "steps": ["Step 1", "Step 2"],
+          "youtubeSearchQuery": "Recipe Name in Hindi"
+        }
+      ]
+    }
     ''';
 
     try {
       final text = await _generateResponse(prompt);
       String cleanText = text.replaceAll('```json', '').replaceAll('```', '').trim();
-      final List decoded = jsonDecode(cleanText);
-      return decoded.map((e) => Recipe.fromMap(e)).toList();
+      final Map<String, dynamic> decoded = jsonDecode(cleanText);
+      final List recipesList = decoded['recipes'] ?? [];
+      return recipesList.map((e) => Recipe.fromMap(e)).toList();
     } catch (e) {
       throw Exception('Failed to parse recipes: $e');
     }

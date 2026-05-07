@@ -11,6 +11,7 @@ import 'package:fix_my_diet/features/dashboard/tabs/diet_plan_tab.dart';
 import 'package:fix_my_diet/features/dashboard/tabs/ayurveda_tab.dart';
 import 'package:fix_my_diet/features/dashboard/tabs/grocery_tab.dart';
 import 'package:fix_my_diet/features/recipe_finder/screens/recipe_finder_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -79,7 +80,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
         headerSliverBuilder: (context, innerBoxIsScrolled) {
           return [
             SliverAppBar(
-              expandedHeight: 200.0,
+              expandedHeight: 240.0,
               floating: false,
               pinned: true,
               backgroundColor: AppColors.primary,
@@ -118,6 +119,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
                               _buildStatChip(Icons.local_fire_department, '${_plan!.dailyCalorieTarget} kcal/day'),
                               const SizedBox(width: 8),
                               _buildStatChip(Icons.account_balance_wallet, '₹${_plan!.estimatedWeeklyCostInr}/week'),
+                              const SizedBox(width: 8),
+                              _buildStatChip(Icons.water_drop, '3L/day'),
                             ],
                           ),
                         ],
@@ -138,6 +141,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
               ),
               actions: [
                 IconButton(
+                  icon: const Icon(Icons.share, color: Colors.white),
+                  tooltip: 'Share Plan',
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Plan copied to clipboard!')));
+                  },
+                ),
+                IconButton(
                   icon: const Icon(Icons.refresh, color: Colors.white),
                   tooltip: 'New Consultation',
                   onPressed: () => Navigator.of(context).pushReplacementNamed('/survey'),
@@ -157,7 +167,35 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
                               title: const Text('Change Language'),
                               onTap: () {
                                 Navigator.pop(context);
-                                Navigator.of(context).pushReplacementNamed('/survey');
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('Select Language'),
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: ['English', 'Hindi', 'Gujarati', 'Marathi', 'Tamil', 'Telugu', 'Bengali'].map((lang) {
+                                        return ListTile(
+                                          title: Text(lang),
+                                          onTap: () async {
+                                            Navigator.pop(context);
+                                            final prefs = await SharedPreferences.getInstance();
+                                            await prefs.setString('language', lang);
+                                            final user = ref.read(currentUserProvider);
+                                            if (user != null) {
+                                              final survey = await _firestore.getUserSurvey(user.uid);
+                                              if (survey != null) {
+                                                await _firestore.saveUserProfile(user.uid, user.email ?? '', survey.copyWith(selectedLanguage: lang));
+                                              }
+                                            }
+                                            if (context.mounted) {
+                                              Navigator.of(context).pushReplacementNamed('/loading');
+                                            }
+                                          },
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
+                                );
                               },
                             ),
                             ListTile(

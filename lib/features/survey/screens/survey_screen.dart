@@ -417,6 +417,25 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
       appBar: AppBar(
         title: const Text('Your Health Profile'),
         actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.language),
+            tooltip: 'Select Language',
+            onSelected: (String result) async {
+              setState(() {
+                _selectedLanguage = result;
+                _data = _data.copyWith(selectedLanguage: result);
+              });
+              final prefs = await SharedPreferences.getInstance();
+              await prefs.setString('language', result);
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              for (final lang in ['English', 'Hindi', 'Gujarati', 'Marathi', 'Tamil', 'Telugu', 'Bengali'])
+                PopupMenuItem<String>(
+                  value: lang,
+                  child: Text(lang),
+                ),
+            ],
+          ),
           if (_currentStep == 4)
             TextButton(
               onPressed: _submitSurvey,
