@@ -108,6 +108,50 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
   }
 
   
+  
+  void _showShareCard() {
+    showDialog(context: context, builder: (_) => AlertDialog(
+      title: const Text('Your Diet ID Card 🪪'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(colors: [Colors.green.shade100, Colors.teal.shade50]),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Column(
+              children: [
+                const Icon(Icons.qr_code_2, size: 80, color: Colors.teal),
+                const SizedBox(height: 8),
+                Text('FixMyDiet Member', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text('${_plan?.dailyCalorieTarget ?? 2000} kcal/day', style: GoogleFonts.poppins(color: Colors.teal.shade700)),
+                Text('Scan to view my Desi Diet Plan!', style: GoogleFonts.poppins(fontSize: 10, color: Colors.grey)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text('Take a screenshot and share it with your friends!', style: GoogleFonts.poppins(fontSize: 12, fontStyle: FontStyle.italic)),
+        ]
+      ),
+      actions: [TextButton(onPressed: ()=>Navigator.pop(context), child: const Text('Close'))],
+    ));
+  }
+
+  
+  void _showCheatApprover() {
+    final bmi = _survey!.weightKg / ((_survey!.heightCm / 100) * (_survey!.heightCm / 100));
+    final isApproved = bmi < 24.0;
+    showDialog(context: context, builder: (_) => AlertDialog(
+      title: Text(isApproved ? 'Cheat Meal Approved! 🎉' : 'Cheat Meal Denied! 🚨'),
+      content: Text(isApproved 
+        ? 'Your BMI is looking good. You can have 1 Samosa or a slice of Pizza today. Enjoy!' 
+        : 'Stay strong! Have roasted Makhana or 1 piece of Dark Chocolate instead to keep your progress.'),
+      actions: [TextButton(onPressed: ()=>Navigator.pop(context), child: const Text('Okay!'))],
+    ));
+  }
+
   void _showCravingDialog() {
     showDialog(context: context, builder: (_) => AlertDialog(
       title: const Text('Craving Sweets? 🤤'),
@@ -264,7 +308,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
                 ],
               ),
               actions: [
+                IconButton(icon: const Icon(Icons.share, color: Colors.blueAccent), tooltip: 'Share Plan', onPressed: _showShareCard),
                 IconButton(icon: const Icon(Icons.cookie, color: Colors.orangeAccent), tooltip: 'Sweet Craving?', onPressed: _showCravingDialog),
+                IconButton(icon: const Icon(Icons.fastfood, color: Colors.redAccent), tooltip: 'Cheat Meal?', onPressed: _showCheatApprover),
                 IconButton(
                   icon: const Icon(Icons.nightlight_round, color: Colors.amber),
                   tooltip: 'Fasting Mode',
@@ -364,7 +410,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
         },
         body: Column(
           children: [
-            _buildGrandmaWisdom(), _buildDoshaBadge(),
+            _buildGrandmaWisdom(), _buildDoshaBadge(), _buildBreathingWidget(),
             Expanded(
               child: TabBarView(
                 controller: _tabController,
@@ -383,6 +429,58 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
 
   
   
+  
+  Widget _buildBreathingWidget() {
+    return GestureDetector(
+      onTap: () {
+        showDialog(context: context, builder: (_) => AlertDialog(
+          title: const Text('Mindful Eating 🧘🏽'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text('Take 3 deep breaths before eating to improve digestion.'),
+              const SizedBox(height: 20),
+              TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0.5, end: 1.0),
+                duration: const Duration(seconds: 4),
+                curve: Curves.easeInOutSine,
+                builder: (context, val, child) {
+                  return Transform.scale(
+                    scale: val,
+                    child: Container(
+                      width: 100, height: 100,
+                      decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.blue.withValues(alpha: 0.3)),
+                      child: const Center(child: Text('Breathe In', style: TextStyle(color: Colors.blue))),
+                    ),
+                  );
+                },
+                onEnd: () {},
+              )
+            ]
+          ),
+          actions: [TextButton(onPressed: ()=>Navigator.pop(context), child: const Text('Done'))],
+        ));
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.blue.shade50,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.blue.shade200),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.air, color: Colors.blue),
+            const SizedBox(width: 8),
+            Text('Pre-meal Breathing Exercise', style: GoogleFonts.poppins(color: Colors.blue.shade700, fontWeight: FontWeight.bold)),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildDoshaBadge() {
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 0, 20, 16),
