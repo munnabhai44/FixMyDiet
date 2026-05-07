@@ -38,7 +38,7 @@ class AppTranslations {
       'Ayurvedic Profile': 'आयुर्वेदिक प्रोफाइल',
       'Any Ayurvedic Complaints?': 'कोणत्याही आयुर्वेदिक समस्या?',
       'Skip & Gen': 'सोडा आणि योजना बनवा'
-    }
+    },
 
     'Tamil': {
       'Your Health Plan': 'உங்கள் சுகாதார திட்டம்',

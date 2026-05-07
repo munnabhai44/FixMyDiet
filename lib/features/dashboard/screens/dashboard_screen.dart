@@ -107,6 +107,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
     );
   }
 
+  
+  void _showCravingDialog() {
+    showDialog(context: context, builder: (_) => AlertDialog(
+      title: const Text('Craving Sweets? 🤤'),
+      content: const Text('Try eating 2 Dates (Khajoor) with warm ghee, or roasted Makhana with jaggery. Avoid processed sugar!\n\n+ Ayurvedic Fact: Sweet cravings often indicate Vata imbalance.'),
+      actions: [TextButton(onPressed: ()=>Navigator.pop(context), child: const Text('Got it!'))],
+    ));
+  }
+
   void _showSickModeDialog() {
     final ctrl = TextEditingController();
     showDialog(
@@ -208,7 +217,21 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text('BMI', style: GoogleFonts.poppins(color: Colors.white70, fontSize: 10)),
-                                    Text(bmi.toStringAsFixed(1), style: GoogleFonts.poppins(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
+                                    
+                                    Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        SizedBox(
+                                          width: 40, height: 40,
+                                          child: CircularProgressIndicator(
+                                            value: bmi / 40.0,
+                                            backgroundColor: Colors.white24,
+                                            valueColor: AlwaysStoppedAnimation<Color>(bmi > 25 ? Colors.red : (bmi < 18.5 ? Colors.orange : Colors.green)),
+                                          )
+                                        ),
+                                        Text(bmi.toStringAsFixed(1), style: GoogleFonts.poppins(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+                                      ]
+                                    ),
                                   ],
                                 ),
                               ),
@@ -241,6 +264,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
                 ],
               ),
               actions: [
+                IconButton(icon: const Icon(Icons.cookie, color: Colors.orangeAccent), tooltip: 'Sweet Craving?', onPressed: _showCravingDialog),
                 IconButton(
                   icon: const Icon(Icons.nightlight_round, color: Colors.amber),
                   tooltip: 'Fasting Mode',
@@ -387,7 +411,23 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.purple, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0)),
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Detailed Prakriti test coming in v2!')));
+              
+              showDialog(context: context, builder: (_) => AlertDialog(
+                title: const Text('Quick Dosha Quiz 🧘🏽‍♀️'),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text('1. Is your skin usually dry (Vata), warm/oily (Pitta), or thick/cool (Kapha)?'),
+                    SizedBox(height: 8),
+                    Text('2. Is your digestion irregular (Vata), fast/strong (Pitta), or slow/steady (Kapha)?'),
+                    SizedBox(height: 8),
+                    Text('3. Under stress, do you feel anxious (Vata), irritable (Pitta), or withdrawn (Kapha)?'),
+                  ]
+                ),
+                actions: [TextButton(onPressed: ()=>Navigator.pop(context), child: const Text('Take Full Test Later'))],
+              ));
+
             },
             child: const Text('Retest', style: TextStyle(fontSize: 12)),
           )

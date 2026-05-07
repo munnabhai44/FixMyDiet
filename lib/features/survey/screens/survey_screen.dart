@@ -92,7 +92,7 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
           Text(AppTranslations.t('Basic Information', _selectedLanguage), style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.darkGreen)),
           const SizedBox(height: 20),
           
-          Text(AppTranslations.t('${AppTranslations.t(', _selectedLanguage)Age:', _selectedLanguage)} ${_data.age} years', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+          Text('${AppTranslations.t('Age:', _selectedLanguage)} ${_data.age} ${AppTranslations.t('years', _selectedLanguage)}', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
           Slider(
             value: _data.age.toDouble(),
             min: 10, max: 90,
