@@ -133,7 +133,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RecipeFinderScreen())),
         icon: const Icon(Icons.restaurant_menu),
-        label: const Text(AppTranslations.t('What Can I Cook?', _survey!.selectedLanguage)),
+        label: Text(AppTranslations.t('What Can I Cook?', _survey!.selectedLanguage)),
         backgroundColor: AppColors.secondary,
       ),
       body: NestedScrollView(
@@ -193,10 +193,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
                 controller: _tabController,
                 indicatorWeight: 4,
                 indicatorColor: AppColors.secondary,
-                tabs: const [
-                  Tab(text: AppTranslations.t('7-Day Plan', _survey!.selectedLanguage), icon: Icon(Icons.calendar_month)),
-                  Tab(text: AppTranslations.t('Ayurveda', _survey!.selectedLanguage), icon: Icon(Icons.spa)),
-                  Tab(text: AppTranslations.t('Grocery', _survey!.selectedLanguage), icon: Icon(Icons.shopping_cart)),
+                tabs: [
+                  Tab(text: AppTranslations.t('7-Day Plan', _survey!.selectedLanguage), icon: const Icon(Icons.calendar_month)),
+                  Tab(text: AppTranslations.t('Ayurveda', _survey!.selectedLanguage), icon: const Icon(Icons.spa)),
+                  Tab(text: AppTranslations.t('Grocery', _survey!.selectedLanguage), icon: const Icon(Icons.shopping_cart)),
                 ],
               ),
               actions: [
