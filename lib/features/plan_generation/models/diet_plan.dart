@@ -2,6 +2,7 @@ class DietPlan {
   final int dailyCalorieTarget;
   final int estimatedWeeklyCostInr;
   final List<DayPlan> days;
+  final List<GroceryItem> groceryList;
   final AyurvedaRoutine ayurvedaRoutine;
   final String generatedAt;
   final String language;
@@ -10,6 +11,7 @@ class DietPlan {
     required this.dailyCalorieTarget,
     required this.estimatedWeeklyCostInr,
     required this.days,
+    required this.groceryList,
     required this.ayurvedaRoutine,
     required this.generatedAt,
     required this.language,
@@ -19,6 +21,7 @@ class DietPlan {
     'dailyCalorieTarget': dailyCalorieTarget,
     'estimatedWeeklyCostInr': estimatedWeeklyCostInr,
     'dietPlan': days.map((d) => d.toMap()).toList(),
+    'groceryList': groceryList.map((g) => g.toMap()).toList(),
     'ayurvedaRoutine': ayurvedaRoutine.toMap(),
     'generatedAt': generatedAt,
     'language': language,
@@ -30,6 +33,7 @@ class DietPlan {
       dailyCalorieTarget: map['daily_calorie_target'] ?? map['dailyCalorieTarget'] ?? 1800,
       estimatedWeeklyCostInr: map['estimated_weekly_cost_inr'] ?? map['estimatedWeeklyCostInr'] ?? 800,
       days: (dietPlanList as List).map((d) => DayPlan.fromMap(d)).toList(),
+      groceryList: (map['grocery_list'] ?? map['groceryList'] ?? []).map<GroceryItem>((g) => GroceryItem.fromMap(g)).toList(),
       ayurvedaRoutine: AyurvedaRoutine.fromMap(
         map['ayurveda_routine'] ?? map['ayurvedaRoutine'] ?? {},
       ),
@@ -124,4 +128,15 @@ class AyurvedaRoutine {
       lifestyleTips: List<String>.from(map['lifestyle_tips'] ?? []),
     );
   }
+}
+
+class GroceryItem {
+  final String item;
+  final String quantity;
+  final int costInr;
+  const GroceryItem(this.item, this.quantity, this.costInr);
+  Map<String, dynamic> toMap() => {'item': item, 'quantity': quantity, 'cost_inr': costInr};
+  factory GroceryItem.fromMap(Map<String, dynamic> map) => GroceryItem(
+    map['item'] ?? '', map['quantity'] ?? '', map['cost_inr'] ?? map['costInr'] ?? 0,
+  );
 }
