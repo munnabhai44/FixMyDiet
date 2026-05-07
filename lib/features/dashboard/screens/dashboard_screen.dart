@@ -91,7 +91,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
                   setState(() => _isLoading = true);
                   try {
                     final newPlan = await GeminiService().generateFastingPlan(_survey!, modes[i]);
-                    await _firestore.saveGeneratedPlan(ref.read(currentUserProvider)!.uid, newPlan);
+                    await _firestore.savePlan(ref.read(currentUserProvider)!.uid, newPlan);
                     _loadData();
                   } catch (e) {
                     setState(() => _isLoading = false);
