@@ -35,14 +35,7 @@ jobs:
       - name: Customize Android App Name & Logo
         run: |
           sed -i 's/android:label="fix_my_diet"/android:label="FixMyDiet"/' android/app/src/main/AndroidManifest.xml
-          if [ -f "assets/logo.png" ]; then
-            echo "Applying custom logo..."
-            for density in hdpi mdpi xhdpi xxhdpi xxxhdpi; do
-              mkdir -p android/app/src/main/res/mipmap-$density
-              cp assets/logo.png android/app/src/main/res/mipmap-$density/ic_launcher.png
-              cp assets/logo.png android/app/src/main/res/mipmap-$density/ic_launcher_round.png
-            done
-          fi
+
 
       - name: Sync Package Name with Firebase
         run: |

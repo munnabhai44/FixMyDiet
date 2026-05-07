@@ -142,9 +142,11 @@ class GeminiService {
     Act as an Ayurvedic Vaidya and Dietician. The user is currently sick with "$illness".
     Language: ${survey.selectedLanguage}. Diet Type: ${survey.dietType}.
     Provide a highly effective 1-day healing diet and home remedies.
+    CRITICAL: YOU MUST RESPOND ENTIRELY IN ${survey.selectedLanguage}. IF THE LANGUAGE IS HINDI/GUJARATI/MARATHI, WRITE IN THAT SCRIPT.
+    For Ayurvedic morning drinks, specifically recommend affordable local options based on their problem (e.g., Giloy tea, Neem juice, overnight soaked Methi water).
     Format your response beautifully using Markdown. Include:
     1. 🍲 1-Day Healing Diet (Breakfast, Lunch, Dinner, Drinks)
-    2. 🌿 Ayurvedic Home Remedies
+    2. 🌿 Ayurvedic Home Remedies (Include Giloy/Neem/Methi if appropriate)
     3. 💡 Quick Recovery Tips
     ''';
     
