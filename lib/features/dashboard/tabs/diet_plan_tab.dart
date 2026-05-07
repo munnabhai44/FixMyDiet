@@ -192,11 +192,7 @@ class _DietPlanTabState extends State<DietPlanTab> {
                                         context: context,
                                         builder: (context) => AlertDialog(
                                           title: Text('Nutrition Information', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18)),
-                                          content: Text('Meal: ${meal.description.split(' | NUTRITION: ')[0]}
-
-${meal.description.contains(' | NUTRITION: ') ? meal.description.split(' | NUTRITION: ')[1].replaceAll(', ', '
-') : 'Estimated Calories: ~${(widget.plan.dailyCalorieTarget / 4).round()} kcal
-Macros: Balanced ratio for your target.'}', style: GoogleFonts.poppins(fontSize: 14, height: 1.5)),
+                                          content: Text('Meal: ${meal.description.split(' | NUTRITION: ')[0]}\n\n${meal.description.contains(' | NUTRITION: ') ? meal.description.split(' | NUTRITION: ')[1].replaceAll(', ', '\n') : 'Estimated Calories: ~${(widget.plan.dailyCalorieTarget / 4).round()} kcal\nMacros: Balanced ratio for your target.'}', style: GoogleFonts.poppins(fontSize: 14, height: 1.5)),
                                           actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))],
                                         )
                                       );
@@ -227,8 +223,6 @@ Macros: Balanced ratio for your target.'}', style: GoogleFonts.poppins(fontSize:
                                   ),
                                 ),
                               ],
-                            ),
-
                             ),
                           ],
                         ),

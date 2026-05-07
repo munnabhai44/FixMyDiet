@@ -51,7 +51,14 @@ class GeminiService {
     Respond ONLY with a valid JSON object matching the exact normal schema (daily_calorie_target, estimated_weekly_cost_inr, grocery_list, diet_plan, ayurveda_routine).
     CRITICAL: For every meal append "| NUTRITION: ...". The "diet_plan" array MUST contain exactly 7 objects!
     ''';
-    return await _generateResponse(prompt);
+    try {
+      final text = await _generateResponse(prompt);
+      String cleanText = text.replaceAll('`json', '').replaceAll('`', '').trim();
+      final decoded = jsonDecode(cleanText);
+      return DietPlan.fromMap(decoded);
+    } catch (e) {
+      throw Exception('Failed to parse fasting plan: ');
+    }
   }
 
   Future<DietPlan> generateDietPlan(SurveyData survey) async {

@@ -146,9 +146,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
                         const SizedBox(height: 16),
                         Expanded(child: SingleChildScrollView(child: Text(plan))),
                         ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))
-                      ],)),
+                      ],
                     ),
-                  )
+                  ),
                 );
               } catch(e) {
                 Navigator.pop(context);
@@ -338,12 +338,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
             ),
           ];
         },
-        body: Column(children: [_buildGrandmaWisdom(), Expanded(child: TabBarView(
-          controller: _tabController,
+        body: Column(
           children: [
-            DietPlanTab(plan: _plan!),
-            AyurvedaTab(routine: _plan!.ayurvedaRoutine),
-            GroceryTab(plan: _plan!),
+            _buildGrandmaWisdom(),
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  DietPlanTab(plan: _plan!),
+                  AyurvedaTab(routine: _plan!.ayurvedaRoutine),
+                  GroceryTab(plan: _plan!),
+                ],
+              ),
+            ),
           ],
         ),
       ),
