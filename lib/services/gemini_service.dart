@@ -40,17 +40,21 @@ class GeminiService {
   Future<DietPlan> generateDietPlan(SurveyData survey) async {
     final prompt = '''
     Act as a professional Ayurvedic Vaidya and modern Dietician for an Indian user.
-    Generate a complete 7-day diet plan and Ayurvedic routine based on this data:
-    - Age: ${survey.age}, Gender: ${survey.gender}
-    - Weight: ${survey.weightKg}kg, Height: ${survey.heightCm}cm
-    - Activity Level: ${survey.activityLevel}
+    Generate a complete 7-day diet plan using STRICTLY local Indian home-cooked meals. Avoid fancy western meals.
+    BUDGET: Must strictly align with the user's budget (${survey.budgetLevel}). Do not exceed this budget in "estimated_weekly_cost_inr".
+    
+    Data:
+    - Age/Gender: ${survey.age} ${survey.gender}
+    - Weight/Height: ${survey.weightKg}kg, ${survey.heightCm}cm
+    - Activity: ${survey.activityLevel}
     - Diet Type: ${survey.dietType}
-    - Medical Conditions: ${survey.medicalConditions.join(', ')}
-    - Deficiencies: ${survey.deficiencies.join(', ')}
+    - Budget Level: ${survey.budgetLevel}
+    - Medical/Deficiencies: ${survey.medicalConditions.join(', ')} / ${survey.deficiencies.join(', ')}
     - Ayurvedic Complaints: ${survey.ayurvedicComplaints.join(', ')}
     - Language: ${survey.selectedLanguage}
 
-    Respond ONLY with a valid JSON object matching this exact structure. 
+    Respond ONLY with a valid JSON object. 
+    CRITICAL INSTRUCTION FOR NUTRITION: For EVERY single meal, you MUST append detailed nutrition info using this EXACT format: "Meal description | NUTRITION: 300 kcal, Protein: 10g, Carbs: 40g, Fat: 5g, Vit C: 10%, Iron: 15%"
     CRITICAL: The "diet_plan" array MUST contain exactly 7 objects!
     {
       "daily_calorie_target": 2000,
@@ -96,6 +100,11 @@ class GeminiService {
     Suggest 5 Indian $mealType recipes using these ingredients: ${ingredients.join(', ')}.
     Diet: $dietType, Healthy: $healthy, Language: $language.
     
+    CRITICAL INSTRUCTIONS:
+    1. Make the recipes highly detailed. Include exact measurements (e.g. 1 cup, 2 tbsp) in the steps.
+    2. Provide a full step-by-step cooking guide. Do not use just two lines.
+    3. The "nutritionNote" MUST contain highly detailed macros (e.g., Calories: 300 kcal, Protein: 15g, Vitamin A: 10%, Iron: 20%, etc.).
+
     Respond ONLY with a valid JSON object matching this exact structure:
     {
       "recipes": [
@@ -120,6 +129,42 @@ class GeminiService {
       return recipesList.map((e) => Recipe.fromMap(e)).toList();
     } catch (e) {
       throw Exception('Failed to parse recipes: $e');
+    }
+  }
+
+  Future<String> generateSickPlan(SurveyData survey, String illness) async {
+    final prompt = '''
+    Act as an Ayurvedic Vaidya and Dietician. The user is currently sick with "$illness".
+    Language: ${survey.selectedLanguage}. Diet Type: ${survey.dietType}.
+    Provide a highly effective 1-day healing diet and home remedies.
+    Format your response beautifully using Markdown. Include:
+    1. 🍲 1-Day Healing Diet (Breakfast, Lunch, Dinner, Drinks)
+    2. 🌿 Ayurvedic Home Remedies
+    3. 💡 Quick Recovery Tips
+    ''';
+    
+    try {
+      final response = await http.post(
+        Uri.parse(_endpoint),
+        headers: {
+          'Authorization': 'Bearer $_apiKey',
+          'Content-Type': 'application/json',
+        },
+        body: jsonEncode({
+          'model': _model,
+          'messages': [
+            {'role': 'system', 'content': 'You are a helpful AI Doctor.'},
+            {'role': 'user', 'content': prompt}
+          ],
+          'temperature': 0.4,
+        }),
+      );
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body)['choices'][0]['message']['content'];
+      }
+      throw Exception('Groq Error');
+    } catch (e) {
+      throw Exception('Failed to generate sick plan: $e');
     }
   }
 }

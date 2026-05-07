@@ -69,13 +69,17 @@ class DayPlan {
 
   factory DayPlan.fromMap(Map<String, dynamic> map) {
     final meals = map['meals'] ?? {};
+    String parseMeal(dynamic m) {
+       if (m is Map) return "${m['description']} | NUTRITION: ${m['nutrition_info']}";
+       return m?.toString() ?? 'No suggestion';
+    }
     return DayPlan(
       day: map['day'] ?? 1,
-      earlyMorning: meals['early_morning'] ?? 'No suggestion',
-      breakfast: meals['breakfast'] ?? 'No suggestion',
-      lunch: meals['lunch'] ?? 'No suggestion',
-      eveningSnack: meals['evening_snack'] ?? 'No suggestion',
-      dinner: meals['dinner'] ?? 'No suggestion',
+      earlyMorning: parseMeal(meals['early_morning']),
+      breakfast: parseMeal(meals['breakfast']),
+      lunch: parseMeal(meals['lunch']),
+      eveningSnack: parseMeal(meals['evening_snack']),
+      dinner: parseMeal(meals['dinner']),
     );
   }
 

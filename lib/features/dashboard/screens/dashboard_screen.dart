@@ -12,6 +12,8 @@ import 'package:fix_my_diet/features/dashboard/tabs/ayurveda_tab.dart';
 import 'package:fix_my_diet/features/dashboard/tabs/grocery_tab.dart';
 import 'package:fix_my_diet/features/recipe_finder/screens/recipe_finder_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:fix_my_diet/core/utils/translations.dart';
+import 'package:fix_my_diet/services/gemini_service.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -27,6 +29,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
   DietPlan? _plan;
   SurveyData? _survey;
   bool _isLoading = true;
+  int _waterGlasses = 0;
 
   @override
   void initState() {
@@ -62,6 +65,63 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
   }
 
   @override
+  
+  void _showSickModeDialog() {
+    final ctrl = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(AppTranslations.t('Feeling Sick?', _survey!.selectedLanguage)),
+        content: TextField(
+          controller: ctrl,
+          decoration: const InputDecoration(hintText: 'E.g., Cold & Cough, Fever...'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              if (ctrl.text.isEmpty) return;
+              
+              showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (_) => const Center(child: CircularProgressIndicator()),
+              );
+              
+              try {
+                final plan = await GeminiService().generateSickPlan(_survey!, ctrl.text);
+                if (!mounted) return;
+                Navigator.pop(context); // close loading
+                
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  builder: (_) => Container(
+                    padding: const EdgeInsets.all(24),
+                    height: MediaQuery.of(context).size.height * 0.8,
+                    child: Column(
+                      children: [
+                        const Text('Your Healing Plan', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 16),
+                        Expanded(child: SingleChildScrollView(child: Text(plan))),
+                        ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))
+                      ],
+                    ),
+                  )
+                );
+              } catch(e) {
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+              }
+            },
+            child: const Text('Get Healing Plan'),
+          )
+        ],
+      )
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (_isLoading) return const Scaffold(body: Center(child: CircularProgressIndicator(color: AppColors.primary)));
     if (_plan == null || _survey == null) return const Scaffold(body: Center(child: Text('No data found.')));
@@ -73,7 +133,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RecipeFinderScreen())),
         icon: const Icon(Icons.restaurant_menu),
-        label: const Text('What Can I Cook?'),
+        label: const Text(AppTranslations.t('What Can I Cook?', _survey!.selectedLanguage)),
         backgroundColor: AppColors.secondary,
       ),
       body: NestedScrollView(
@@ -96,7 +156,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Your Health Plan', style: GoogleFonts.poppins(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+                              Text(AppTranslations.t('Your Health Plan', _survey!.selectedLanguage), style: GoogleFonts.poppins(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
                               Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
@@ -120,7 +180,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
                               const SizedBox(width: 8),
                               _buildStatChip(Icons.account_balance_wallet, '₹${_plan!.estimatedWeeklyCostInr}/week'),
                               const SizedBox(width: 8),
-                              _buildStatChip(Icons.water_drop, '3L/day'),
+                              GestureDetector(onTap: () => setState(() => _waterGlasses++), child: _buildStatChip(Icons.water_drop, '${_waterGlasses * 250}ml/3L')),
                             ],
                           ),
                         ],
@@ -134,12 +194,17 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
                 indicatorWeight: 4,
                 indicatorColor: AppColors.secondary,
                 tabs: const [
-                  Tab(text: '7-Day Plan', icon: Icon(Icons.calendar_month)),
-                  Tab(text: 'Ayurveda', icon: Icon(Icons.spa)),
-                  Tab(text: 'Grocery', icon: Icon(Icons.shopping_cart)),
+                  Tab(text: AppTranslations.t('7-Day Plan', _survey!.selectedLanguage), icon: Icon(Icons.calendar_month)),
+                  Tab(text: AppTranslations.t('Ayurveda', _survey!.selectedLanguage), icon: Icon(Icons.spa)),
+                  Tab(text: AppTranslations.t('Grocery', _survey!.selectedLanguage), icon: Icon(Icons.shopping_cart)),
                 ],
               ),
               actions: [
+                IconButton(
+                  icon: const Icon(Icons.medical_services, color: Colors.white),
+                  tooltip: 'Sick Mode',
+                  onPressed: _showSickModeDialog,
+                ),
                 IconButton(
                   icon: const Icon(Icons.share, color: Colors.white),
                   tooltip: 'Share Plan',
@@ -196,6 +261,17 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
                                     ),
                                   ),
                                 );
+                              },
+                            ),
+                            ListTile(
+                              leading: const Icon(Icons.delete_forever),
+                              title: Text(AppTranslations.t('Reset Profile', _survey!.selectedLanguage)),
+                              onTap: () async {
+                                final user = ref.read(currentUserProvider);
+                                if (user != null) {
+                                  await _firestore.saveUserProfile(user.uid, user.email ?? '', _survey!.copyWith(age: 0));
+                                }
+                                if (context.mounted) Navigator.of(context).pushReplacementNamed('/survey');
                               },
                             ),
                             ListTile(
