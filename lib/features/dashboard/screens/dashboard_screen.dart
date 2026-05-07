@@ -376,7 +376,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Dadi Maa Ke Nuskhe', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: AppColors.secondary)),
-                Text('Having digestion issues? Soak 1 tsp Ajwain in warm water overnight and drink it first thing in the morning!', style: GoogleFonts.poppins(fontSize: 12, color: AppColors.textPrimary)),
+                Text([
+                  'Having digestion issues? Soak 1 tsp Ajwain in warm water overnight and drink it first thing in the morning!',
+                  'Sore throat? Boil Tulsi leaves, ginger, and a pinch of black pepper. Add honey before drinking.',
+                  'Feeling weak? A glass of warm turmeric milk (Haldi Doodh) at night boosts immunity!',
+                  'Dry cough? Mix a pinch of turmeric and rock salt in warm water and gargle before bed.',
+                  'Hair falling? Massage scalp with warm coconut oil mixed with curry leaves twice a week.',
+                  'Acne problems? Apply a paste of neem leaves and rose water for 15 minutes.',
+                  'Feeling bloated? Chew half a teaspoon of roasted fennel seeds (Saunf) after every meal.',
+                  'Low energy? Eat 2 overnight soaked almonds and 1 walnut every morning.',
+                  'Joint pain? Massage with warm mustard oil infused with garlic cloves.',
+                  'Trouble sleeping? Rub a few drops of warm ghee on the soles of your feet before bed.'
+                ][DateTime.now().day % 10], style: GoogleFonts.poppins(fontSize: 12, color: AppColors.textPrimary)),
               ],
             ),
           ),

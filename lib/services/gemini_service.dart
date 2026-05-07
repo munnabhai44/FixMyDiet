@@ -48,6 +48,7 @@ class GeminiService {
     - Language: ${survey.selectedLanguage}
     - Medical/Deficiencies: ${survey.medicalConditions.join(', ')} / ${survey.deficiencies.join(', ')}
 
+    CRITICAL: YOU MUST WRITE ALL RESPONSE VALUES (including descriptions, names, grocery lists, ayurveda routines) IN THE SELECTED LANGUAGE: ${survey.selectedLanguage}. If Gujarati/Hindi/Marathi/Tamil/Telugu, output in that native script.
     Respond ONLY with a valid JSON object matching the exact normal schema (daily_calorie_target, estimated_weekly_cost_inr, grocery_list, diet_plan, ayurveda_routine).
     CRITICAL: For every meal append "| NUTRITION: ...". The "diet_plan" array MUST contain exactly 7 objects!
     ''';
@@ -78,6 +79,7 @@ class GeminiService {
     - Language: ${survey.selectedLanguage}
     - Regional Cuisines: ${survey.regions.isNotEmpty ? survey.regions.join(', ') : 'Any Indian'}
 
+    CRITICAL: YOU MUST WRITE ALL RESPONSE VALUES (descriptions, names, grocery lists, ayurveda routines) ENTIRELY IN ${survey.selectedLanguage}. Use the native script for that language!
     Respond ONLY with a valid JSON object. 
     CRITICAL INSTRUCTION FOR NUTRITION: For EVERY single meal, you MUST append detailed nutrition info using this EXACT format: "Meal description | NUTRITION: 300 kcal, Protein: 10g, Carbs: 40g, Fat: 5g, Vit C: 10%, Iron: 15%"
     CRITICAL INSTRUCTION FOR GROCERIES: You MUST generate a "grocery_list" array that calculates the EXACT quantities needed for the 7-day plan and their realistic costs in INR. The total sum of "cost_inr" across all items MUST perfectly match "estimated_weekly_cost_inr" and must align with the budget. Do not miss any calculation.

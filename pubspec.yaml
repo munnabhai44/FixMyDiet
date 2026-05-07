@@ -7,7 +7,15 @@ environment:
   sdk: '>=3.4.0 <4.0.0'
 
 dependencies:
-  flutter:
+  flutter_launcher_icons:
+  android: "ic_launcher"
+  ios: true
+  image_path: "assets/logo.png"
+  min_sdk_android: 21
+
+flutter:
+  assets:
+    - assets/logo.png
     sdk: flutter
   flutter_riverpod: any
   firebase_core: any
@@ -23,9 +31,18 @@ dependencies:
   uuid: any
 
 dev_dependencies:
+  flutter_launcher_icons: any
   flutter_test:
     sdk: flutter
   flutter_lints: any
 
+flutter_launcher_icons:
+  android: "ic_launcher"
+  ios: true
+  image_path: "assets/logo.png"
+  min_sdk_android: 21
+
 flutter:
+  assets:
+    - assets/logo.png
   uses-material-design: true
