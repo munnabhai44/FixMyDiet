@@ -260,7 +260,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Text('BMI', style: GoogleFonts.poppins(color: Colors.white70, fontSize: 10)),
+                                    Text(AppTranslations.t('BMI', _selectedLanguage), style: GoogleFonts.poppins(color: Colors.white70, fontSize: 10)),
                                     
                                     Stack(
                                       alignment: Alignment.center,
@@ -410,13 +410,23 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
         },
         body: Column(
           children: [
-            _buildGrandmaWisdom(), _buildDoshaBadge(), _buildBreathingWidget(),
+            
             Expanded(
               child: TabBarView(
                 controller: _tabController,
                 children: [
                   DietPlanTab(plan: _plan!),
-                  AyurvedaTab(routine: _plan!.ayurvedaRoutine),
+                  ListView(
+                    children: [
+                      _buildGrandmaWisdom(),
+                      _buildDoshaBadge(),
+                      _buildBreathingWidget(),
+                      SizedBox(
+                        height: 500, // Wrap in sized box since we have nested listviews
+                        child: AyurvedaTab(routine: _plan!.ayurvedaRoutine),
+                      ),
+                    ],
+                  ),
                   GroceryTab(plan: _plan!),
                 ],
               ),
@@ -440,21 +450,31 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
             children: [
               const Text('Take 3 deep breaths before eating to improve digestion.'),
               const SizedBox(height: 20),
-              TweenAnimationBuilder<double>(
-                tween: Tween(begin: 0.5, end: 1.0),
-                duration: const Duration(seconds: 4),
-                curve: Curves.easeInOutSine,
-                builder: (context, val, child) {
-                  return Transform.scale(
-                    scale: val,
-                    child: Container(
-                      width: 100, height: 100,
-                      decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.blue.withValues(alpha: 0.3)),
-                      child: const Center(child: Text('Breathe In', style: TextStyle(color: Colors.blue))),
-                    ),
+              StatefulBuilder(
+                builder: (BuildContext context, StateSetter setState) {
+                  bool breathingIn = true;
+                  return TweenAnimationBuilder<double>(
+                    key: ValueKey<bool>(breathingIn),
+                    tween: Tween(begin: breathingIn ? 0.5 : 1.0, end: breathingIn ? 1.0 : 0.5),
+                    duration: Duration(seconds: breathingIn ? 4 : 6),
+                    curve: Curves.easeInOutSine,
+                    builder: (context, val, child) {
+                      return Transform.scale(
+                        scale: val,
+                        child: Container(
+                          width: 100, height: 100,
+                          decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.blue.withValues(alpha: 0.3)),
+                          child: Center(child: Text(breathingIn ? AppTranslations.t('Breathe In', _selectedLanguage) : AppTranslations.t('Breathe Out', _selectedLanguage), style: const TextStyle(color: Colors.blue))),
+                        ),
+                      );
+                    },
+                    onEnd: () {
+                      Future.delayed(const Duration(seconds: 2), () {
+                        if (context.mounted) setState(() => breathingIn = !breathingIn);
+                      });
+                    },
                   );
-                },
-                onEnd: () {},
+                }
               )
             ]
           ),
@@ -474,7 +494,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
           children: [
             const Icon(Icons.air, color: Colors.blue),
             const SizedBox(width: 8),
-            Text('Pre-meal Breathing Exercise', style: GoogleFonts.poppins(color: Colors.blue.shade700, fontWeight: FontWeight.bold)),
+            Text(AppTranslations.t('Pre-meal Breathing Exercise', _selectedLanguage), style: GoogleFonts.poppins(color: Colors.blue.shade700, fontWeight: FontWeight.bold)),
           ],
         ),
       ),
@@ -500,7 +520,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Your Prakriti (Dosha)', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.purple.shade700)),
+                  Text(AppTranslations.t('Your Prakriti (Dosha)', _selectedLanguage), style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.purple.shade700)),
                   Text('Vata-Pitta Dominant', style: GoogleFonts.poppins(fontSize: 12, color: AppColors.textPrimary)),
                 ],
               ),
@@ -527,7 +547,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
               ));
 
             },
-            child: const Text('Retest', style: TextStyle(fontSize: 12)),
+            child: const Text(AppTranslations.t('Retest', _selectedLanguage), style: TextStyle(fontSize: 12)),
           )
         ],
       ),
@@ -551,8 +571,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Dadi Maa Ke Nuskhe', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: AppColors.secondary)),
-                Text([
+                Text(AppTranslations.t('Dadi Maa Ke Nuskhe', _selectedLanguage), style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: AppColors.secondary)),
+                Text(AppTranslations.t([
                   'Having digestion issues? Soak 1 tsp Ajwain in warm water overnight and drink it first thing in the morning!',
                   'Sore throat? Boil Tulsi leaves, ginger, and a pinch of black pepper. Add honey before drinking.',
                   'Feeling weak? A glass of warm turmeric milk (Haldi Doodh) at night boosts immunity!',
@@ -563,7 +583,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
                   'Low energy? Eat 2 overnight soaked almonds and 1 walnut every morning.',
                   'Joint pain? Massage with warm mustard oil infused with garlic cloves.',
                   'Trouble sleeping? Rub a few drops of warm ghee on the soles of your feet before bed.'
-                ][DateTime.now().day % 10], style: GoogleFonts.poppins(fontSize: 12, color: AppColors.textPrimary)),
+                ][DateTime.now().day % 10], _selectedLanguage), style: GoogleFonts.poppins(fontSize: 12, color: AppColors.textPrimary)),
               ],
             ),
           ),
