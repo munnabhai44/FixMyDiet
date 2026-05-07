@@ -66,6 +66,47 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
 
   @override
   
+  
+  void _showFastingModeSheet() {
+    final modes = ['Navratri Vrat', 'Ramadan', 'Jain Diet', 'Sattvic', 'Ekadashi'];
+    final icons = ['🪔', '🌙', '🙏', '🕉️', '📿'];
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Festival & Fasting Mode', style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 16),
+            ...List.generate(modes.length, (i) => ListTile(
+              leading: Text(icons[i], style: const TextStyle(fontSize: 24)),
+              title: Text(modes[i], style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+              trailing: ElevatedButton(
+                style: ElevatedButton.styleFrom(backgroundColor: AppColors.secondary, foregroundColor: Colors.white),
+                onPressed: () async {
+                  Navigator.pop(ctx);
+                  setState(() => _isLoading = true);
+                  try {
+                    final newPlan = await GeminiService().generateFastingPlan(_survey!, modes[i]);
+                    await _firestore.saveGeneratedPlan(ref.read(currentUserProvider)!.uid, newPlan);
+                    _loadData();
+                  } catch (e) {
+                    setState(() => _isLoading = false);
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                  }
+                },
+                child: const Text('Start Mode'),
+              ),
+            )),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _showSickModeDialog() {
     final ctrl = TextEditingController();
     showDialog(
@@ -105,7 +146,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
                         const SizedBox(height: 16),
                         Expanded(child: SingleChildScrollView(child: Text(plan))),
                         ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))
-                      ],
+                      ],)),
                     ),
                   )
                 );
@@ -201,6 +242,11 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
               ),
               actions: [
                 IconButton(
+                  icon: const Icon(Icons.nightlight_round, color: Colors.amber),
+                  tooltip: 'Fasting Mode',
+                  onPressed: _showFastingModeSheet,
+                ),
+                IconButton(
                   icon: const Icon(Icons.medical_services, color: Colors.white),
                   tooltip: 'Sick Mode',
                   onPressed: _showSickModeDialog,
@@ -292,7 +338,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
             ),
           ];
         },
-        body: TabBarView(
+        body: Column(children: [_buildGrandmaWisdom(), Expanded(child: TabBarView(
           controller: _tabController,
           children: [
             DietPlanTab(plan: _plan!),
@@ -300,6 +346,34 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
             GroceryTab(plan: _plan!),
           ],
         ),
+      ),
+    );
+  }
+
+  
+  Widget _buildGrandmaWisdom() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF3E0),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.secondary.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          const Text('👵🏽', style: TextStyle(fontSize: 32)),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Dadi Maa Ke Nuskhe', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: AppColors.secondary)),
+                Text('Having digestion issues? Soak 1 tsp Ajwain in warm water overnight and drink it first thing in the morning!', style: GoogleFonts.poppins(fontSize: 12, color: AppColors.textPrimary)),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

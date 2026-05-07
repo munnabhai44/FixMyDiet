@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:fix_my_diet/core/constants/app_colors.dart';
 import 'package:fix_my_diet/features/plan_generation/models/diet_plan.dart';
+import 'package:fix_my_diet/core/constants/smart_swaps.dart';
 
 class DietPlanTab extends StatefulWidget {
   final DietPlan plan;
@@ -12,6 +13,84 @@ class DietPlanTab extends StatefulWidget {
 }
 
 class _DietPlanTabState extends State<DietPlanTab> {
+  void _showLogMealDialog(BuildContext context, String mealName) {
+    int katori = 1;
+    int roti = 2;
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) => Container(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Log Meal: $mealName', style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('🥣 Katori (Bowls)', style: TextStyle(fontSize: 16)),
+                  Row(
+                    children: [
+                      IconButton(onPressed: () => setSheetState(() => katori = katori > 0 ? katori - 1 : 0), icon: const Icon(Icons.remove_circle_outline)),
+                      Text('$katori', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      IconButton(onPressed: () => setSheetState(() => katori++), icon: const Icon(Icons.add_circle_outline)),
+                    ],
+                  ),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text('🫓 Roti / Chapati', style: TextStyle(fontSize: 16)),
+                  Row(
+                    children: [
+                      IconButton(onPressed: () => setSheetState(() => roti = roti > 0 ? roti - 1 : 0), icon: const Icon(Icons.remove_circle_outline)),
+                      Text('$roti', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                      IconButton(onPressed: () => setSheetState(() => roti++), icon: const Icon(Icons.add_circle_outline)),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary, foregroundColor: Colors.white),
+                  onPressed: () {
+                    Navigator.pop(ctx);
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Logged: $katori Katori, $roti Roti. Estimated +${katori * 150 + roti * 100} kcal')));
+                  },
+                  child: const Text('Log Meal (Indian Units)'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+  
+  void _showSmartSwapSheet(BuildContext context, String desc) {
+    List<Widget> swaps = [];
+    SmartSwaps.db.forEach((key, value) {
+      if (desc.toLowerCase().contains(key)) {
+        swaps.add(ListTile(
+          title: Text('Swap $key with ${value['swap']}'),
+          subtitle: Text('${value['nutrition']}'),
+          trailing: ElevatedButton(onPressed: () => Navigator.pop(context), style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white), child: const Text('Apply')),
+        ));
+      }
+    });
+    
+    if (swaps.isEmpty) {
+      swaps.add(const ListTile(title: Text('No expensive ingredients detected! Highly Desi. 🇮🇳')));
+    }
+    
+    showModalBottomSheet(context: context, builder: (ctx) => Container(padding: const EdgeInsets.all(20), child: Column(mainAxisSize: MainAxisSize.min, children: [Text('💰 Smart Swap', style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold)), const SizedBox(height: 16), ...swaps])));
+  }
+
   int _selectedDay = 0;
 
   @override
@@ -102,23 +181,54 @@ class _DietPlanTabState extends State<DietPlanTab> {
                               style: GoogleFonts.poppins(fontSize: 14, color: AppColors.textPrimary, height: 1.4),
                             ),
                             const SizedBox(height: 12),
-                            SizedBox(
-                              height: 30,
-                              child: TextButton.icon(
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => AlertDialog(
-                                      title: Text('Nutrition Information', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18)),
-                                      content: Text('Meal: ${meal.description.split(' | NUTRITION: ')[0]}\n\n${meal.description.contains(' | NUTRITION: ') ? meal.description.split(' | NUTRITION: ')[1].replaceAll(', ', '\n') : 'Estimated Calories: ~${(widget.plan.dailyCalorieTarget / 4).round()} kcal\nMacros: Balanced ratio for your target.'}', style: GoogleFonts.poppins(fontSize: 14, height: 1.5)),
-                                      actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))],
-                                    )
-                                  );
-                                },
-                                icon: const Icon(Icons.info_outline, size: 16),
-                                label: const Text('Nutrition Info', style: TextStyle(fontSize: 12)),
-                                style: TextButton.styleFrom(padding: EdgeInsets.zero, foregroundColor: AppColors.primary),
-                              ),
+
+                            Row(
+                              children: [
+                                SizedBox(
+                                  height: 30,
+                                  child: TextButton.icon(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) => AlertDialog(
+                                          title: Text('Nutrition Information', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 18)),
+                                          content: Text('Meal: ${meal.description.split(' | NUTRITION: ')[0]}
+
+${meal.description.contains(' | NUTRITION: ') ? meal.description.split(' | NUTRITION: ')[1].replaceAll(', ', '
+') : 'Estimated Calories: ~${(widget.plan.dailyCalorieTarget / 4).round()} kcal
+Macros: Balanced ratio for your target.'}', style: GoogleFonts.poppins(fontSize: 14, height: 1.5)),
+                                          actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Close'))],
+                                        )
+                                      );
+                                    },
+                                    icon: const Icon(Icons.info_outline, size: 16),
+                                    label: const Text('Nutrition', style: TextStyle(fontSize: 12)),
+                                    style: TextButton.styleFrom(padding: EdgeInsets.zero, foregroundColor: AppColors.primary),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                SizedBox(
+                                  height: 30,
+                                  child: TextButton.icon(
+                                    onPressed: () => _showLogMealDialog(context, meal.title),
+                                    icon: const Icon(Icons.check_circle_outline, size: 16),
+                                    label: const Text('Log Meal', style: TextStyle(fontSize: 12)),
+                                    style: TextButton.styleFrom(padding: EdgeInsets.zero, foregroundColor: AppColors.secondary),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                SizedBox(
+                                  height: 30,
+                                  child: TextButton.icon(
+                                    onPressed: () => _showSmartSwapSheet(context, meal.description),
+                                    icon: const Icon(Icons.currency_rupee, size: 16),
+                                    label: const Text('Swap', style: TextStyle(fontSize: 12)),
+                                    style: TextButton.styleFrom(padding: EdgeInsets.zero, foregroundColor: Colors.green),
+                                  ),
+                                ),
+                              ],
+                            ),
+
                             ),
                           ],
                         ),

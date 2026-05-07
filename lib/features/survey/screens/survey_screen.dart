@@ -54,7 +54,7 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
   }
 
   void _nextStep() {
-    if (_currentStep < 4) {
+    if (_currentStep < 5) {
       setState(() => _currentStep++);
     } else {
       _submitSurvey();
@@ -361,6 +361,57 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
     );
   }
 
+  
+  Widget _buildStepRegion() {
+    final regionsList = ['North Indian', 'South Indian', 'Gujarati', 'Maharashtrian', 'Bengali', 'Rajasthani', 'North-East'];
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Regional Cuisine', style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.darkGreen)),
+          const SizedBox(height: 8),
+          Text('Select regions to build your ultimate desi plan', style: GoogleFonts.poppins(color: AppColors.textSecondary)),
+          const SizedBox(height: 20),
+          GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, crossAxisSpacing: 10, mainAxisSpacing: 10, childAspectRatio: 2.5),
+            itemCount: regionsList.length,
+            itemBuilder: (ctx, i) {
+              final r = regionsList[i];
+              final isSelected = _data.regions.contains(r);
+              return InkWell(
+                onTap: () {
+                  setState(() {
+                    final list = List<String>.from(_data.regions);
+                    if (isSelected) list.remove(r); else list.add(r);
+                    _data = _data.copyWith(regions: list);
+                  });
+                },
+                child: Container(
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: isSelected ? AppColors.secondary : AppColors.cardWhite,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: isSelected ? AppColors.secondary : AppColors.divider),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (isSelected) const Icon(Icons.check, color: Colors.white, size: 16),
+                      if (isSelected) const SizedBox(width: 4),
+                      Text(r, style: GoogleFonts.poppins(color: isSelected ? Colors.white : AppColors.textPrimary, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildStep5() {
     return SingleChildScrollView(
       child: Column(
@@ -412,7 +463,7 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
       return const Scaffold(body: Center(child: CircularProgressIndicator(color: AppColors.primary)));
     }
 
-    final steps = [_buildStep1(), _buildStep2(), _buildStep3(), _buildStep4(), _buildStep5()];
+    final steps = [_buildStep1(), _buildStep2(), _buildStep3(), _buildStep4(), _buildStepRegion(), _buildStep5()];
 
     return Scaffold(
       appBar: AppBar(
@@ -437,7 +488,7 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
                 ),
             ],
           ),
-          if (_currentStep == 4)
+          if (_currentStep == 5)
             TextButton(
               onPressed: _submitSurvey,
               child: Text(AppTranslations.t('Skip & Gen', _selectedLanguage), style: GoogleFonts.poppins(color: Colors.white, fontSize: 12)),

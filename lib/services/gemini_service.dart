@@ -37,6 +37,23 @@ class GeminiService {
     }
   }
 
+  
+  Future<DietPlan> generateFastingPlan(SurveyData survey, String mode) async {
+    final prompt = '''
+    Act as a professional Ayurvedic Vaidya.
+    Generate a complete 7-day FASTING diet plan for "$mode".
+    STRICTLY follow the fasting rules (e.g. Navratri = only sabudana, kuttu, singhara, makhana. Jain = no root veg, no onion/garlic).
+    
+    Data:
+    - Language: ${survey.selectedLanguage}
+    - Medical/Deficiencies: ${survey.medicalConditions.join(', ')} / ${survey.deficiencies.join(', ')}
+
+    Respond ONLY with a valid JSON object matching the exact normal schema (daily_calorie_target, estimated_weekly_cost_inr, grocery_list, diet_plan, ayurveda_routine).
+    CRITICAL: For every meal append "| NUTRITION: ...". The "diet_plan" array MUST contain exactly 7 objects!
+    ''';
+    return await _generateResponse(prompt);
+  }
+
   Future<DietPlan> generateDietPlan(SurveyData survey) async {
     final prompt = '''
     Act as a professional Ayurvedic Vaidya and modern Dietician for an Indian user.
@@ -52,6 +69,7 @@ class GeminiService {
     - Medical/Deficiencies: ${survey.medicalConditions.join(', ')} / ${survey.deficiencies.join(', ')}
     - Ayurvedic Complaints: ${survey.ayurvedicComplaints.join(', ')}
     - Language: ${survey.selectedLanguage}
+    - Regional Cuisines: ${survey.regions.isNotEmpty ? survey.regions.join(', ') : 'Any Indian'}
 
     Respond ONLY with a valid JSON object. 
     CRITICAL INSTRUCTION FOR NUTRITION: For EVERY single meal, you MUST append detailed nutrition info using this EXACT format: "Meal description | NUTRITION: 300 kcal, Protein: 10g, Carbs: 40g, Fat: 5g, Vit C: 10%, Iron: 15%"

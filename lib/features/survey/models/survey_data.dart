@@ -11,6 +11,7 @@ class SurveyData {
   final List<String> deficiencies;
   final List<String> ayurvedicComplaints;
   final String additionalNotes;
+  final List<String> regions;
   final String selectedLanguage;
 
   const SurveyData({
@@ -26,6 +27,7 @@ class SurveyData {
     this.deficiencies = const [],
     this.ayurvedicComplaints = const [],
     this.additionalNotes = '',
+    this.regions = const [],
     this.selectedLanguage = 'English',
   });
 
@@ -42,6 +44,7 @@ class SurveyData {
     List<String>? deficiencies,
     List<String>? ayurvedicComplaints,
     String? additionalNotes,
+    List<String>? regions,
     String? selectedLanguage,
   }) {
     return SurveyData(
@@ -57,6 +60,7 @@ class SurveyData {
       deficiencies: deficiencies ?? this.deficiencies,
       ayurvedicComplaints: ayurvedicComplaints ?? this.ayurvedicComplaints,
       additionalNotes: additionalNotes ?? this.additionalNotes,
+      regions: regions ?? this.regions,
       selectedLanguage: selectedLanguage ?? this.selectedLanguage,
     );
   }
@@ -75,6 +79,7 @@ class SurveyData {
       'deficiencies': deficiencies,
       'ayurvedicComplaints': ayurvedicComplaints,
       'additionalNotes': additionalNotes,
+      'regions': regions,
       'selectedLanguage': selectedLanguage,
     };
   }
@@ -93,6 +98,7 @@ class SurveyData {
       deficiencies: List<String>.from(map['deficiencies'] ?? []),
       ayurvedicComplaints: List<String>.from(map['ayurvedicComplaints'] ?? []),
       additionalNotes: map['additionalNotes'] ?? '',
+      regions: List<String>.from(map['regions'] ?? []),
       selectedLanguage: map['selectedLanguage'] ?? 'English',
     );
   }
