@@ -92,7 +92,7 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
           Text(AppTranslations.t('Basic Information', _selectedLanguage), style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.darkGreen)),
           const SizedBox(height: 20),
           
-          Text('${AppTranslations.t('Age:', _selectedLanguage)} ${_data.age} years', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+          Text(AppTranslations.t('${AppTranslations.t(', _selectedLanguage)Age:', _selectedLanguage)} ${_data.age} years', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
           Slider(
             value: _data.age.toDouble(),
             min: 10, max: 90,
@@ -131,7 +131,7 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Height: ${_data.heightCm.round()} cm', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+              Text(AppTranslations.t('Height: ${_data.heightCm.round()} cm', _selectedLanguage), style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
               Text(BmiCalculator.heightToFeetInches(_data.heightCm), style: GoogleFonts.poppins(color: AppColors.textSecondary)),
             ],
           ),
@@ -143,7 +143,7 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
           ),
           
           const SizedBox(height: 16),
-          Text('Weight: ${_data.weightKg.round()} kg', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+          Text(AppTranslations.t('Weight: ${_data.weightKg.round()} kg', _selectedLanguage), style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
           Slider(
             value: _data.weightKg,
             min: 25, max: 180,
@@ -165,7 +165,7 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Your BMI', style: GoogleFonts.poppins(color: AppColors.textSecondary, fontSize: 13)),
+                    Text(AppTranslations.t('Your BMI', _selectedLanguage), style: GoogleFonts.poppins(color: AppColors.textSecondary, fontSize: 13)),
                     Text(bmi.toStringAsFixed(1), style: GoogleFonts.poppins(fontSize: 24, fontWeight: FontWeight.bold, color: bmiColor)),
                   ],
                 ),
@@ -205,7 +205,7 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
         children: [
           Text(AppTranslations.t('Activity Level', _selectedLanguage), style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.darkGreen)),
           const SizedBox(height: 8),
-          Text('How active are you daily?', style: GoogleFonts.poppins(color: AppColors.textSecondary)),
+          Text(AppTranslations.t('How active are you daily?', _selectedLanguage), style: GoogleFonts.poppins(color: AppColors.textSecondary)),
           const SizedBox(height: 20),
           
           ...List.generate(AppConstants.activityLevels.length, (index) {
@@ -256,10 +256,10 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Diet & Budget', style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.darkGreen)),
+          Text(AppTranslations.t('Diet & Budget', _selectedLanguage), style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.darkGreen)),
           const SizedBox(height: 20),
           
-          Text('Diet Preference', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+          Text(AppTranslations.t('Diet Preference', _selectedLanguage), style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
           const SizedBox(height: 12),
           Column(
             children: AppConstants.dietTypes.map((type) {
@@ -275,7 +275,7 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
           ),
           
           const SizedBox(height: 24),
-          Text('Weekly Food Budget (per person)', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+          Text(AppTranslations.t('Weekly Food Budget (per person)', _selectedLanguage), style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
           const SizedBox(height: 12),
           Column(
             children: AppConstants.budgetLevels.map((budget) {
@@ -301,10 +301,10 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
         children: [
           Text(AppTranslations.t('Medical Profile', _selectedLanguage), style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.darkGreen)),
           const SizedBox(height: 8),
-          Text('Select any that apply. We will customize your plan to avoid trigger foods.', style: GoogleFonts.poppins(color: AppColors.accent, fontSize: 13)),
+          Text(AppTranslations.t('Select any that apply. We will customize your plan to avoid trigger foods.', _selectedLanguage), style: GoogleFonts.poppins(color: AppColors.accent, fontSize: 13)),
           const SizedBox(height: 20),
           
-          Text('Medical Conditions', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+          Text(AppTranslations.t('Medical Conditions', _selectedLanguage), style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
           const SizedBox(height: 12),
           Wrap(
             spacing: 8, runSpacing: 8,
@@ -331,7 +331,7 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
           ),
           
           const SizedBox(height: 24),
-          Text('Known Nutritional Deficiencies', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+          Text(AppTranslations.t('Known Nutritional Deficiencies', _selectedLanguage), style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
           const SizedBox(height: 12),
           Wrap(
             spacing: 8, runSpacing: 8,
@@ -368,9 +368,9 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Regional Cuisine', style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.darkGreen)),
+          Text(AppTranslations.t('Regional Cuisine', _selectedLanguage), style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.darkGreen)),
           const SizedBox(height: 8),
-          Text('Select regions to build your ultimate desi plan', style: GoogleFonts.poppins(color: AppColors.textSecondary)),
+          Text(AppTranslations.t('Select regions to build your ultimate desi plan', _selectedLanguage), style: GoogleFonts.poppins(color: AppColors.textSecondary)),
           const SizedBox(height: 20),
           GridView.builder(
             shrinkWrap: true,
@@ -419,7 +419,7 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
         children: [
           Text(AppTranslations.t('Ayurvedic Profile', _selectedLanguage), style: GoogleFonts.poppins(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.darkGreen)),
           const SizedBox(height: 8),
-          Text('Select any common issues. The Vaidya will suggest home remedies.', style: GoogleFonts.poppins(color: AppColors.textSecondary)),
+          Text(AppTranslations.t('Select any common issues. The Vaidya will suggest home remedies.', _selectedLanguage), style: GoogleFonts.poppins(color: AppColors.textSecondary)),
           const SizedBox(height: 20),
           
           Wrap(
@@ -442,7 +442,7 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
           ),
           
           const SizedBox(height: 24),
-          Text('Anything Else?', style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
+          Text(AppTranslations.t('Anything Else?', _selectedLanguage), style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
           const SizedBox(height: 8),
           TextFormField(
             initialValue: _data.additionalNotes,
@@ -510,7 +510,7 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Step ${_currentStep + 1} of ${steps.length}', style: GoogleFonts.poppins(color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+                  Text(AppTranslations.t('Step ${_currentStep + 1} of ${steps.length}', _selectedLanguage), style: GoogleFonts.poppins(color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
                 ],
               ),
             ),

@@ -221,7 +221,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
                               const SizedBox(width: 8),
                               _buildStatChip(Icons.account_balance_wallet, '₹${_plan!.estimatedWeeklyCostInr}/week'),
                               const SizedBox(width: 8),
-                              GestureDetector(onTap: () => setState(() => _waterGlasses++), child: _buildStatChip(Icons.water_drop, '${_waterGlasses * 250}ml/3L')),
+                              GestureDetector(onTap: () => setState(() => _waterGlasses++), child: _buildHydrationTracker()),
                             ],
                           ),
                         ],
@@ -340,7 +340,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
         },
         body: Column(
           children: [
-            _buildGrandmaWisdom(),
+            _buildGrandmaWisdom(), _buildDoshaBadge(),
             Expanded(
               child: TabBarView(
                 controller: _tabController,
@@ -358,6 +358,44 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
   }
 
   
+  
+  Widget _buildDoshaBadge() {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: [Colors.purple.shade50, Colors.pink.shade50]),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.purple.withValues(alpha: 0.2)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              const Text('🧘🏽‍♀️', style: TextStyle(fontSize: 28)),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Your Prakriti (Dosha)', style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: Colors.purple.shade700)),
+                  Text('Vata-Pitta Dominant', style: GoogleFonts.poppins(fontSize: 12, color: AppColors.textPrimary)),
+                ],
+              ),
+            ],
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.purple, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0)),
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Detailed Prakriti test coming in v2!')));
+            },
+            child: const Text('Retest', style: TextStyle(fontSize: 12)),
+          )
+        ],
+      ),
+    );
+  }
+
   Widget _buildGrandmaWisdom() {
     return Container(
       margin: const EdgeInsets.fromLTRB(20, 0, 20, 16),
@@ -389,6 +427,40 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
                   'Trouble sleeping? Rub a few drops of warm ghee on the soles of your feet before bed.'
                 ][DateTime.now().day % 10], style: GoogleFonts.poppins(fontSize: 12, color: AppColors.textPrimary)),
               ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+
+  Widget _buildHydrationTracker() {
+    double progress = (_waterGlasses * 250) / 3000.0;
+    if (progress > 1.0) progress = 1.0;
+    return Container(
+      width: 120,
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.blue.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.blueAccent.withValues(alpha: 0.5)),
+      ),
+      child: Stack(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: LinearProgressIndicator(
+              value: progress,
+              backgroundColor: Colors.transparent,
+              valueColor: const AlwaysStoppedAnimation<Color>(Colors.blueAccent),
+              minHeight: 20,
+            ),
+          ),
+          Center(
+            child: Text(
+              '💧 ml / 3L',
+              style: GoogleFonts.poppins(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
             ),
           ),
         ],
