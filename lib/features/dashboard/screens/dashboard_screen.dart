@@ -224,6 +224,45 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
 
     return Scaffold(
       backgroundColor: AppColors.background,
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: const BoxDecoration(color: AppColors.primary),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('FixMyDiet', style: GoogleFonts.poppins(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  Text(AppTranslations.t('Your Personalized Ayurvedic Diet', _survey?.selectedLanguage ?? 'English'), style: GoogleFonts.poppins(color: Colors.white70, fontSize: 12)),
+                ],
+              ),
+            ),
+            
+            const Divider(),
+            ListTile(leading: const Icon(Icons.person), title: Text(AppTranslations.t('Reset Profile', _survey?.selectedLanguage ?? 'English')), onTap: () async {
+              final user = ref.read(currentUserProvider);
+              if (user != null) {
+                await _firestore.saveUserProfile(user.uid, user.email ?? '', _survey!.copyWith(age: 0));
+              }
+              if (context.mounted) Navigator.of(context).pushReplacementNamed('/survey');
+            }),
+            ListTile(leading: const Icon(Icons.share, color: Colors.blueAccent), title: Text(AppTranslations.t('Share Diet ID', _survey?.selectedLanguage ?? 'English')), onTap: () { Navigator.pop(context); _showShareCard(); }),
+            ListTile(leading: const Icon(Icons.air, color: Colors.lightBlue), title: Text(AppTranslations.t('Pre-meal Breathing', _survey?.selectedLanguage ?? 'English')), onTap: () { Navigator.pop(context); _showBreathingExercise(); }),
+            ListTile(leading: const Icon(Icons.fastfood, color: Colors.redAccent), title: Text(AppTranslations.t('Cheat Meal Approver', _survey?.selectedLanguage ?? 'English')), onTap: () { Navigator.pop(context); _showCheatApprover(); }),
+            ListTile(leading: const Icon(Icons.cookie, color: Colors.orangeAccent), title: Text(AppTranslations.t('Sweet Craving Logger', _survey?.selectedLanguage ?? 'English')), onTap: () { Navigator.pop(context); _showCravingDialog(); }),
+            ListTile(leading: const Icon(Icons.nightlight_round, color: Colors.amber), title: Text(AppTranslations.t('Fasting Mode', _survey?.selectedLanguage ?? 'English')), onTap: () { Navigator.pop(context); _showFastingModeSheet(); }),
+            ListTile(leading: const Icon(Icons.medical_services, color: Colors.red), title: Text(AppTranslations.t('Sick Mode (Pathya)', _survey?.selectedLanguage ?? 'English')), onTap: () { Navigator.pop(context); _showSickModeDialog(); }),
+            const Divider(),
+            ListTile(leading: const Icon(Icons.logout, color: Colors.red), title: Text(AppTranslations.t('Logout', _survey?.selectedLanguage ?? 'English'), style: const TextStyle(color: Colors.red)), onTap: () async {
+              await ref.read(authServiceProvider).signOut();
+              if (context.mounted) Navigator.of(context).pushReplacementNamed('/');
+            }),
+          ],
+        ),
+      ),
+
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => const RecipeFinderScreen())),
         icon: const Icon(Icons.restaurant_menu),
@@ -418,9 +457,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
                   DietPlanTab(plan: _plan!),
                   ListView(
                     children: [
-                      _buildGrandmaWisdom(),
-                      _buildDoshaBadge(),
-                      _buildBreathingWidget(),
+                      DadiMaaAnimatedWidget(language: _survey?.selectedLanguage ?? 'English'),
+                      
+                      
                       SizedBox(
                         height: 500, // Wrap in sized box since we have nested listviews
                         child: AyurvedaTab(routine: _plan!.ayurvedaRoutine),
@@ -440,9 +479,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
   
   
   
-  Widget _buildBreathingWidget() {
-    return GestureDetector(
-      onTap: () {
+  void _showBreathingExercise() {
+    
         showDialog(context: context, builder: (_) => AlertDialog(
           title: const Text('Mindful Eating 🧘🏽'),
           content: Column(
@@ -452,26 +490,36 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
               const SizedBox(height: 20),
               StatefulBuilder(
                 builder: (BuildContext context, StateSetter setState) {
-                  bool breathingIn = true;
+                  int breathState = 0; // 0=In, 1=Hold, 2=Out
+                  String getLabel() {
+                    if (breathState == 0) return AppTranslations.t('Breathe In', _survey?.selectedLanguage ?? 'English');
+                    if (breathState == 1) return AppTranslations.t('Hold', _survey?.selectedLanguage ?? 'English');
+                    return AppTranslations.t('Breathe Out', _survey?.selectedLanguage ?? 'English');
+                  }
                   return TweenAnimationBuilder<double>(
-                    key: ValueKey<bool>(breathingIn),
-                    tween: Tween(begin: breathingIn ? 0.5 : 1.0, end: breathingIn ? 1.0 : 0.5),
-                    duration: Duration(seconds: breathingIn ? 4 : 6),
+                    key: ValueKey<int>(breathState),
+                    tween: Tween(
+                      begin: breathState == 0 ? 0.5 : (breathState == 1 ? 1.0 : 1.0), 
+                      end: breathState == 0 ? 1.0 : (breathState == 1 ? 1.0 : 0.5)
+                    ),
+                    duration: Duration(seconds: breathState == 0 ? 4 : (breathState == 1 ? 7 : 8)),
                     curve: Curves.easeInOutSine,
                     builder: (context, val, child) {
                       return Transform.scale(
                         scale: val,
                         child: Container(
-                          width: 100, height: 100,
+                          width: 150, height: 150,
                           decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.blue.withValues(alpha: 0.3)),
-                          child: Center(child: Text(breathingIn ? AppTranslations.t('Breathe In', _survey?.selectedLanguage ?? 'English') : AppTranslations.t('Breathe Out', _survey?.selectedLanguage ?? 'English'), style: const TextStyle(color: Colors.blue))),
+                          child: Center(child: Text(getLabel(), style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold))),
                         ),
                       );
                     },
                     onEnd: () {
-                      Future.delayed(const Duration(seconds: 2), () {
-                        if (context.mounted) setState(() => breathingIn = !breathingIn);
-                      });
+                      if (context.mounted) {
+                        setState(() {
+                          breathState = (breathState + 1) % 3;
+                        });
+                      }
                     },
                   );
                 }
@@ -481,24 +529,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
           actions: [TextButton(onPressed: ()=>Navigator.pop(context), child: const Text('Done'))],
         ));
       },
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.blue.shade50,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.blue.shade200),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.air, color: Colors.blue),
-            const SizedBox(width: 8),
-            Text(AppTranslations.t('Pre-meal Breathing Exercise', _survey?.selectedLanguage ?? 'English'), style: GoogleFonts.poppins(color: Colors.blue.shade700, fontWeight: FontWeight.bold)),
-          ],
-        ),
-      ),
-    );
+
   }
 
   Widget _buildDoshaBadge() {
@@ -639,6 +670,74 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
           Icon(icon, color: AppColors.secondary, size: 14),
           const SizedBox(width: 4),
           Text(label, style: GoogleFonts.poppins(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
+        ],
+      ),
+    );
+  }
+}
+
+
+
+class DadiMaaAnimatedWidget extends StatefulWidget {
+  final String language;
+  const DadiMaaAnimatedWidget({super.key, required this.language});
+  @override
+  State<DadiMaaAnimatedWidget> createState() => _DadiMaaAnimatedWidgetState();
+}
+class _DadiMaaAnimatedWidgetState extends State<DadiMaaAnimatedWidget> {
+  int _currentIndex = 0;
+  final List<String> tips = [
+    'Having digestion issues? Soak 1 tsp Ajwain in warm water overnight and drink it first thing in the morning!',
+    'Sore throat? Boil Tulsi leaves, ginger, and a pinch of black pepper. Add honey before drinking.',
+    'Feeling weak? A glass of warm turmeric milk (Haldi Doodh) at night boosts immunity!',
+    'Dry cough? Mix a pinch of turmeric and rock salt in warm water and gargle before bed.',
+    'Hair falling? Massage scalp with warm coconut oil mixed with curry leaves twice a week.',
+    'Acne problems? Apply a paste of neem leaves and rose water for 15 minutes.',
+    'Feeling bloated? Chew half a teaspoon of roasted fennel seeds (Saunf) after every meal.',
+    'Low energy? Eat 2 overnight soaked almonds and 1 walnut every morning.',
+    'Joint pain? Massage with warm mustard oil infused with garlic cloves.',
+    'Trouble sleeping? Rub a few drops of warm ghee on the soles of your feet before bed.'
+  ];
+  @override
+  void initState() {
+    super.initState();
+    _startTimer();
+  }
+  void _startTimer() {
+    Future.delayed(const Duration(seconds: 20), () {
+      if (mounted) {
+        setState(() => _currentIndex = (_currentIndex + 1) % tips.length);
+        _startTimer();
+      }
+    });
+  }
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.lightYellow,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.orange.withOpacity(0.3)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('👵🏽', style: TextStyle(fontSize: 32)),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(AppTranslations.t('Dadi Maa Ke Nuskhe', widget.language), style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: AppColors.secondary)),
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 500),
+                  child: Text(AppTranslations.t(tips[_currentIndex], widget.language), key: ValueKey(_currentIndex), style: GoogleFonts.poppins(fontSize: 12, color: AppColors.textPrimary)),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
