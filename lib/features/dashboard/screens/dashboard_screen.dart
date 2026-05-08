@@ -725,6 +725,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
       ),
     );
   }
+}
 
 
 
