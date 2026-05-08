@@ -27,7 +27,7 @@ class AppTranslations {
       'Grocery': 'किराणा',
       'What Can I Cook?': 'मी काय बनवू शकतो?',
       'Change Language': 'भाषा बदला',
-      'Logout': 'लॉग आउट',
+      
       'Account Profile': 'प्रोफाइल',
       'Reset Profile': 'प्रोफाइल रीसेट करा',
       'Feeling Sick?': 'आजारी वाटत आहे?',

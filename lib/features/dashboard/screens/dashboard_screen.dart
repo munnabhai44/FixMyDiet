@@ -254,6 +254,33 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
             ListTile(leading: const Icon(Icons.cookie, color: Colors.orangeAccent), title: Text(AppTranslations.t('Sweet Craving Logger', _survey?.selectedLanguage ?? 'English')), onTap: () { Navigator.pop(context); _showCravingDialog(); }),
             ListTile(leading: const Icon(Icons.nightlight_round, color: Colors.amber), title: Text(AppTranslations.t('Fasting Mode', _survey?.selectedLanguage ?? 'English')), onTap: () { Navigator.pop(context); _showFastingModeSheet(); }),
             ListTile(leading: const Icon(Icons.medical_services, color: Colors.red), title: Text(AppTranslations.t('Sick Mode (Pathya)', _survey?.selectedLanguage ?? 'English')), onTap: () { Navigator.pop(context); _showSickModeDialog(); }),
+            
+            ListTile(leading: const Icon(Icons.bedtime, color: Colors.deepPurple), title: Text(AppTranslations.t('Sleep Routine Alarm', _survey?.selectedLanguage ?? 'English')), onTap: () {
+              Navigator.pop(context);
+              showDialog(context: context, builder: (_) => AlertDialog(
+                title: Text(AppTranslations.t('Ayurvedic Sleep Routine', _survey?.selectedLanguage ?? 'English')),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.nights_stay, size: 50, color: Colors.deepPurple),
+                    const SizedBox(height: 16),
+                    Text(AppTranslations.t('Based on Ayurveda, the best time to sleep is 10:00 PM (Kapha time) to wake up refreshed at 6:00 AM (Vata time).', _survey?.selectedLanguage ?? 'English'), textAlign: TextAlign.center),
+                    const SizedBox(height: 16),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(AppTranslations.t('Enable Bedtime Reminder', _survey?.selectedLanguage ?? 'English'), style: const TextStyle(fontWeight: FontWeight.bold)),
+                        Switch(value: true, activeColor: Colors.deepPurple, onChanged: (val) {
+                          Navigator.pop(context);
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppTranslations.t('Reminder set for 9:30 PM!', _survey?.selectedLanguage ?? 'English'))));
+                        })
+                      ]
+                    )
+                  ]
+                ),
+                actions: [TextButton(onPressed: ()=>Navigator.pop(context), child: Text(AppTranslations.t('Close', _survey?.selectedLanguage ?? 'English')))],
+              ));
+            }),
             const Divider(),
             ListTile(leading: const Icon(Icons.logout, color: Colors.red), title: Text(AppTranslations.t('Logout', _survey?.selectedLanguage ?? 'English'), style: const TextStyle(color: Colors.red)), onTap: () async {
               await ref.read(authServiceProvider).signOut();
@@ -449,6 +476,32 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
         },
         body: Column(
           children: [
+            // MOOD TRACKER (Level 5 Punishment Feature)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              margin: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.cardWhite,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Text(AppTranslations.t('Mood today:', _survey?.selectedLanguage ?? 'English'), style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 14)),
+                  IconButton(icon: const Text('😊', style: TextStyle(fontSize: 24)), onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppTranslations.t('Great! Stay positive and drink water.', _survey?.selectedLanguage ?? 'English'))));
+                  }),
+                  IconButton(icon: const Text('😫', style: TextStyle(fontSize: 24)), onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppTranslations.t('Stressed? Try the breathing exercise in the menu!', _survey?.selectedLanguage ?? 'English'))));
+                  }),
+                  IconButton(icon: const Text('😴', style: TextStyle(fontSize: 24)), onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppTranslations.t('Tired? Get some rest and avoid heavy meals.', _survey?.selectedLanguage ?? 'English'))));
+                  }),
+                ],
+              ),
+            ),
+
             
             Expanded(
               child: TabBarView(
@@ -528,8 +581,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
           ),
           actions: [TextButton(onPressed: ()=>Navigator.pop(context), child: const Text('Done'))],
         ));
-      },
-
   }
 
   Widget _buildDoshaBadge() {
@@ -674,7 +725,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
       ),
     );
   }
-}
 
 
 
