@@ -68,51 +68,53 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
   @override
   
   
-  void _showFastingModeSheet() {
-    final modes = ['Navratri Vrat', 'Ramadan', 'Jain Diet', 'Sattvic', 'Ekadashi'];
-    final icons = ['🪔', '🌙', '🙏', '🕉️', '📿'];
+    void _showFastingModeSheet() {
     showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (ctx) => Container(
-        padding: const EdgeInsets.all(20),
+      context: context, 
+      backgroundColor: Colors.transparent,
+      builder: (_) => Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          color: AppColors.cardWhite,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Festival & Fasting Mode', style: GoogleFonts.poppins(fontSize: 20, fontWeight: FontWeight.bold)),
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2))),
+            const SizedBox(height: 20),
+            const Icon(Icons.nightlight_round, size: 48, color: AppColors.secondary),
             const SizedBox(height: 16),
-            ...List.generate(modes.length, (i) => ListTile(
-              leading: Text(icons[i], style: const TextStyle(fontSize: 24)),
-              title: Text(modes[i], style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
-              trailing: ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.secondary,
-        foregroundColor: Colors.white,
-        elevation: 6,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)), foregroundColor: Colors.white),
-                onPressed: () async {
-                  Navigator.pop(ctx);
-                  setState(() => _isLoading = true);
-                  try {
-                    final newPlan = await GeminiService().generateFastingPlan(_survey!, modes[i]);
-                    await _firestore.savePlan(ref.read(currentUserProvider)!.uid, newPlan);
-                    _loadData();
-                  } catch (e) {
-                    setState(() => _isLoading = false);
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
-                  }
-                },
-                child: const Text('Start Mode'),
+            Text(AppTranslations.t('Fasting Mode', _survey?.selectedLanguage ?? 'English'), style: GoogleFonts.playfairDisplay(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.primary)),
+            const SizedBox(height: 8),
+            Text(AppTranslations.t('Switch to a specialized fasting diet (Ekadashi/Intermittent). Your meals will be reduced to 2 light fast-friendly options.', _survey?.selectedLanguage ?? 'English'), textAlign: TextAlign.center, style: GoogleFonts.poppins(color: AppColors.textSecondary)),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              height: 50,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary, 
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25))
+                ),
+                onPressed: () {
+                  setState(() { _isFastingMode = !_isFastingMode; });
+                  Navigator.pop(context);
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text(_isFastingMode ? 'Fasting Mode Activated 🌙' : 'Fasting Mode Deactivated ☀️'),
+                    backgroundColor: AppColors.primary,
+                  ));
+                }, 
+                child: Text(_isFastingMode ? 'Deactivate Fasting Mode' : 'Activate Fasting Mode', style: const TextStyle(fontWeight: FontWeight.bold)),
               ),
-            )),
+            ),
+            const SizedBox(height: 10),
           ],
-        ),
-      ),
-    );
+        )
+    ));
   }
 
-  
-  
   void _showShareCard() {
     showDialog(context: context, builder: (_) => AlertDialog(
       title: const Text('Your Diet ID Card 🪪'),
