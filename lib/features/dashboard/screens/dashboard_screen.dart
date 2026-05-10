@@ -23,6 +23,7 @@ class DashboardScreen extends ConsumerStatefulWidget {
 }
 
 class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTickerProviderStateMixin {
+  bool _isFastingMode = false;
   final FirestoreService _firestore = FirestoreService();
   late TabController _tabController;
   
@@ -85,7 +86,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
               leading: Text(icons[i], style: const TextStyle(fontSize: 24)),
               title: Text(modes[i], style: GoogleFonts.poppins(fontWeight: FontWeight.w600)),
               trailing: ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.secondary, foregroundColor: Colors.white),
+                style: ElevatedButton.styleFrom(backgroundColor: AppColors.secondary,
+        foregroundColor: Colors.white,
+        elevation: 6,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)), foregroundColor: Colors.white),
                 onPressed: () async {
                   Navigator.pop(ctx);
                   setState(() => _isLoading = true);
@@ -217,7 +221,41 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
 
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) return const Scaffold(body: Center(child: CircularProgressIndicator(color: AppColors.primary)));
+    if (_isLoading) return Scaffold(
+      backgroundColor: AppColors.background,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.0, end: 1.0),
+              duration: const Duration(seconds: 2),
+              builder: (context, val, child) {
+                return Opacity(
+                  opacity: val,
+                  child: Transform.scale(
+                    scale: 0.8 + (val * 0.2),
+                    child: Container(
+                      width: 100, height: 100,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: AppColors.primaryGradient,
+                        boxShadow: [BoxShadow(color: AppColors.secondary.withOpacity(0.4), blurRadius: 20 * val, spreadRadius: 2 * val)],
+                      ),
+                      child: const Icon(Icons.spa, color: Colors.white, size: 48),
+                    ),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 28),
+            Text('Curating your Ayurvedic plan...', style: GoogleFonts.playfairDisplay(color: AppColors.primary, fontSize: 18, fontStyle: FontStyle.italic)),
+            const SizedBox(height: 20),
+            SizedBox(width: 150, child: ClipRRect(borderRadius: BorderRadius.circular(4), child: const LinearProgressIndicator(color: AppColors.secondary, backgroundColor: Color(0xFFEAEAEA), minHeight: 4))),
+          ],
+        ),
+      ),
+    );
     if (_plan == null || _survey == null) return const Scaffold(body: Center(child: Text('No data found.')));
 
     final bmi = BmiCalculator.calculate(_survey!.weightKg, _survey!.heightCm);
@@ -229,19 +267,64 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              decoration: const BoxDecoration(color: AppColors.primary),
+              decoration: const BoxDecoration(gradient: AppColors.primaryGradient),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text('FixMyDiet', style: GoogleFonts.poppins(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 8),
-                  Text(AppTranslations.t('Your Personalized Ayurvedic Diet', _survey?.selectedLanguage ?? 'English'), style: GoogleFonts.poppins(color: Colors.white70, fontSize: 12)),
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.spa, color: AppColors.secondary, size: 28),
+                  ),
+                  const SizedBox(height: 12),
+                  Text('FixMyDiet', style: GoogleFonts.playfairDisplay(color: Colors.white, fontSize: 26, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 4),
+                  Text(AppTranslations.t('Your Personalized Ayurvedic Diet', _survey?.selectedLanguage ?? 'English'), style: GoogleFonts.poppins(color: AppColors.lightYellow, fontSize: 11, letterSpacing: 0.5)),
                 ],
               ),
             ),
             
+            ListTile(
+              leading: const Icon(Icons.language, color: AppColors.secondary),
+              title: Text(AppTranslations.t('Change Language', _survey?.selectedLanguage ?? 'English')),
+              onTap: () {
+                Navigator.pop(context);
+                showDialog(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text(AppTranslations.t('Change Language', _survey?.selectedLanguage ?? 'English')),
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: ['English', 'Hindi', 'Gujarati', 'Marathi', 'Tamil', 'Telugu', 'Bengali'].map((lang) {
+                        return ListTile(
+                          title: Text(lang),
+                          trailing: _survey?.selectedLanguage == lang ? const Icon(Icons.check, color: AppColors.success) : null,
+                          onTap: () async {
+                            Navigator.pop(context);
+                            final prefs = await SharedPreferences.getInstance();
+                            await prefs.setString('language', lang);
+                            final user = ref.read(currentUserProvider);
+                            if (user != null) {
+                              final survey = await _firestore.getUserSurvey(user.uid);
+                              if (survey != null) {
+                                await _firestore.saveUserProfile(user.uid, user.email ?? '', survey.copyWith(selectedLanguage: lang));
+                              }
+                            }
+                            if (context.mounted) Navigator.of(context).pushReplacementNamed('/loading');
+                          },
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                );
+              },
+            ),
             const Divider(),
-            ListTile(leading: const Icon(Icons.person), title: Text(AppTranslations.t('Reset Profile', _survey?.selectedLanguage ?? 'English')), onTap: () async {
+            ListTile(leading: const Icon(Icons.person_outline, color: AppColors.primary), title: Text(AppTranslations.t('Reset Profile', _survey?.selectedLanguage ?? 'English')), onTap: () async {
               final user = ref.read(currentUserProvider);
               if (user != null) {
                 await _firestore.saveUserProfile(user.uid, user.email ?? '', _survey!.copyWith(age: 0));
@@ -295,6 +378,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
         icon: const Icon(Icons.restaurant_menu),
         label: Text(AppTranslations.t('What Can I Cook?', _survey!.selectedLanguage)),
         backgroundColor: AppColors.secondary,
+        foregroundColor: Colors.white,
+        elevation: 6,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
       ),
       body: NestedScrollView(
         headerSliverBuilder: (context, innerBoxIsScrolled) {
@@ -316,7 +402,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(AppTranslations.t('Your Health Plan', _survey!.selectedLanguage), style: GoogleFonts.poppins(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold)),
+                              Text(AppTranslations.t('Your Health Plan', _survey!.selectedLanguage), style: GoogleFonts.playfairDisplay(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
                               Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
@@ -326,7 +412,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Text(AppTranslations.t('BMI', _survey?.selectedLanguage ?? 'English'), style: GoogleFonts.poppins(color: Colors.white70, fontSize: 10)),
+                                    Text(AppTranslations.t('BMI', _survey?.selectedLanguage ?? 'English'), style: GoogleFonts.poppins(color: AppColors.lightYellow, fontSize: 10, letterSpacing: 1.0)),
                                     
                                     Stack(
                                       alignment: Alignment.center,
@@ -373,104 +459,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
                   Tab(text: AppTranslations.t('Grocery', _survey!.selectedLanguage), icon: const Icon(Icons.shopping_cart)),
                 ],
               ),
-              actions: [
-                IconButton(icon: const Icon(Icons.share, color: Colors.blueAccent), tooltip: 'Share Plan', onPressed: _showShareCard),
-                IconButton(icon: const Icon(Icons.cookie, color: Colors.orangeAccent), tooltip: 'Sweet Craving?', onPressed: _showCravingDialog),
-                IconButton(icon: const Icon(Icons.fastfood, color: Colors.redAccent), tooltip: 'Cheat Meal?', onPressed: _showCheatApprover),
-                IconButton(
-                  icon: const Icon(Icons.nightlight_round, color: Colors.amber),
-                  tooltip: 'Fasting Mode',
-                  onPressed: _showFastingModeSheet,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.medical_services, color: Colors.white),
-                  tooltip: 'Sick Mode',
-                  onPressed: _showSickModeDialog,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.share, color: Colors.white),
-                  tooltip: 'Share Plan',
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Plan copied to clipboard!')));
-                  },
-                ),
-                IconButton(
-                  icon: const Icon(Icons.refresh, color: Colors.white),
-                  tooltip: 'New Consultation',
-                  onPressed: () => Navigator.of(context).pushReplacementNamed('/survey'),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.person, color: Colors.white),
-                  onPressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) => AlertDialog(
-                        title: const Text('Account Profile'),
-                        content: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            ListTile(
-                              leading: const Icon(Icons.language),
-                              title: const Text('Change Language'),
-                              onTap: () {
-                                Navigator.pop(context);
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
-                                    title: const Text('Select Language'),
-                                    content: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: ['English', 'Hindi', 'Gujarati', 'Marathi', 'Tamil', 'Telugu', 'Bengali'].map((lang) {
-                                        return ListTile(
-                                          title: Text(lang),
-                                          onTap: () async {
-                                            Navigator.pop(context);
-                                            final prefs = await SharedPreferences.getInstance();
-                                            await prefs.setString('language', lang);
-                                            final user = ref.read(currentUserProvider);
-                                            if (user != null) {
-                                              final survey = await _firestore.getUserSurvey(user.uid);
-                                              if (survey != null) {
-                                                await _firestore.saveUserProfile(user.uid, user.email ?? '', survey.copyWith(selectedLanguage: lang));
-                                              }
-                                            }
-                                            if (context.mounted) {
-                                              Navigator.of(context).pushReplacementNamed('/loading');
-                                            }
-                                          },
-                                        );
-                                      }).toList(),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                            ListTile(
-                              leading: const Icon(Icons.delete_forever),
-                              title: Text(AppTranslations.t('Reset Profile', _survey!.selectedLanguage)),
-                              onTap: () async {
-                                final user = ref.read(currentUserProvider);
-                                if (user != null) {
-                                  await _firestore.saveUserProfile(user.uid, user.email ?? '', _survey!.copyWith(age: 0));
-                                }
-                                if (context.mounted) Navigator.of(context).pushReplacementNamed('/survey');
-                              },
-                            ),
-                            ListTile(
-                              leading: const Icon(Icons.logout, color: Colors.red),
-                              title: const Text('Logout', style: TextStyle(color: Colors.red)),
-                              onTap: () async {
-                                await ref.read(authServiceProvider).signOut();
-                                if (context.mounted) Navigator.of(context).pushReplacementNamed('/');
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ],
+              actions: const [],  // All tools moved to sidebar drawer
             ),
           ];
         },
@@ -483,7 +472,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
               decoration: BoxDecoration(
                 color: AppColors.cardWhite,
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10)],
+                boxShadow: [BoxShadow(color: AppColors.primary.withOpacity(0.06), blurRadius: 16, offset: const Offset(0, 4))], border: Border.all(color: AppColors.secondary.withOpacity(0.15)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -507,7 +496,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  DietPlanTab(plan: _plan!),
+                  DietPlanTab(plan: _plan!, isFastingMode: _isFastingMode),
                   ListView(
                     children: [
                       DadiMaaAnimatedWidget(language: _survey?.selectedLanguage ?? 'English'),

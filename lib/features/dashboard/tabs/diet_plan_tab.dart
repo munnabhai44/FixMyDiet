@@ -6,7 +6,8 @@ import 'package:fix_my_diet/core/constants/smart_swaps.dart';
 
 class DietPlanTab extends StatefulWidget {
   final DietPlan plan;
-  const DietPlanTab({super.key, required this.plan});
+  final bool isFastingMode;
+  const DietPlanTab({super.key, required this.plan, this.isFastingMode = false});
 
   @override
   State<DietPlanTab> createState() => _DietPlanTabState();
@@ -144,13 +145,24 @@ class _DietPlanTabState extends State<DietPlanTab> {
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.all(16),
-            itemCount: meals.length,
+            itemCount: widget.isFastingMode ? (meals.length > 2 ? 2 : meals.length) : meals.length,
             itemBuilder: (context, index) {
-              final meal = meals[index];
-              return Card(
+              // If fasting, show a modified generic fasting meal or the first 2 meals modified
+              var meal = meals[index];
+              if (widget.isFastingMode) {
+                if (index == 0) meal = MealEntry('Warm Lemon Water & Nuts', 'Morning', 'Hydrating flush. | NUTRITION: 100 kcal', 0xFFD4AF37);
+                if (index == 1) meal = MealEntry('Light Fruits & Milk', 'Sunset', 'Easy digestion before night. | NUTRITION: 250 kcal', 0xFF1E392A);
+              }
+              return Container(
                 margin: const EdgeInsets.only(bottom: 16),
+                decoration: BoxDecoration(
+                  color: AppColors.cardWhite,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [BoxShadow(color: AppColors.primary.withOpacity(0.06), blurRadius: 15, offset: const Offset(0, 5))],
+                  border: Border.all(color: Colors.white, width: 2),
+                ),
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(20),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
