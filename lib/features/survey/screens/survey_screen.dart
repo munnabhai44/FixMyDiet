@@ -185,7 +185,7 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
             spacing: 8, runSpacing: 8,
             children: AppConstants.healthGoals.map((g) {
               return ChoiceChip(
-                label: Text(g),
+                label: Text(AppTranslations.t(g, _selectedLanguage)),
                 selected: _data.goal == g,
                 onSelected: (selected) {
                   if (selected) setState(() => _data = _data.copyWith(goal: g));
@@ -235,8 +235,8 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(level, style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: isSelected ? AppColors.primary : AppColors.textPrimary)),
-                            Text(desc, style: GoogleFonts.poppins(fontSize: 12, color: AppColors.textSecondary)),
+                            Text(AppTranslations.t(level, _selectedLanguage), style: GoogleFonts.poppins(fontWeight: FontWeight.bold, color: isSelected ? AppColors.primary : AppColors.textPrimary)),
+                            Text(AppTranslations.t(desc, _selectedLanguage), style: GoogleFonts.poppins(fontSize: 12, color: AppColors.textSecondary)),
                           ],
                         ),
                       ),
@@ -311,7 +311,7 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
             children: AppConstants.medicalConditions.map((cond) {
               final isSelected = _data.medicalConditions.contains(cond);
               return FilterChip(
-                label: Text(cond),
+                label: Text(AppTranslations.t(cond, _selectedLanguage)),
                 selected: isSelected,
                 onSelected: (selected) {
                   setState(() {
@@ -338,7 +338,7 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
             children: AppConstants.deficiencies.map((def) {
               final isSelected = _data.deficiencies.contains(def);
               return FilterChip(
-                label: Text(def),
+                label: Text(AppTranslations.t(def, _selectedLanguage)),
                 selected: isSelected,
                 onSelected: (selected) {
                   setState(() {
@@ -400,7 +400,7 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
                     children: [
                       if (isSelected) const Icon(Icons.check, color: Colors.white, size: 16),
                       if (isSelected) const SizedBox(width: 4),
-                      Text(r, style: GoogleFonts.poppins(color: isSelected ? Colors.white : AppColors.textPrimary, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
+                      Text(AppTranslations.t(r, _selectedLanguage), style: GoogleFonts.poppins(color: isSelected ? Colors.white : AppColors.textPrimary, fontWeight: isSelected ? FontWeight.bold : FontWeight.normal)),
                     ],
                   ),
                 ),
@@ -427,7 +427,7 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
             children: AppConstants.ayurvedicComplaints.map((comp) {
               final isSelected = _data.ayurvedicComplaints.contains(comp);
               return FilterChip(
-                label: Text(comp),
+                label: Text(AppTranslations.t(comp, _selectedLanguage)),
                 selected: isSelected,
                 selectedColor: AppColors.secondary.withValues(alpha: 0.3),
                 onSelected: (selected) {
