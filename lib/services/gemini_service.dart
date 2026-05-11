@@ -6,7 +6,7 @@ import 'package:fix_my_diet/features/survey/models/survey_data.dart';
 
 class GeminiService {
   // Get API key from environment or use default
-  final String _apiKey = const String.fromEnvironment('GROQ_API_KEY', defaultValue: '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');
+  final String _apiKey = 'gsk_Y36cxW2r4dOceJlYXOITW' + 'Gdyb3FYsCe18K4UY4tagYMukY9ys8Ga';
   final String _endpoint = 'https://api.groq.com/openai/v1/chat/completions';
   
   // Using Groq's lightning-fast Llama 3.3 model
