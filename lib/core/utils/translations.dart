@@ -40,53 +40,53 @@ class AppTranslations {
       'Skip & Gen': 'छोड़ें और बनाएं',
       'Fasting Mode': 'उपवास मोड',
       'Share Diet ID': 'डाइट आईडी शेयर करें',
-      'Pre-meal Breathing': 'भोजन से पहले श्वास',
-      'Cheat Meal Approver': 'चीट मील अप्रूवर',
-      'Sweet Craving Logger': 'मीठा लालसा लॉगर',
-      'Sick Mode (Pathya)': 'बीमार मोड (पथ्य)',
-      'Sleep Routine Alarm': 'नींद रूटीन अलार्म',
-      'Dadi Maa Ke Nuskhe': 'दादी माँ के नुस्ख़े',
-      'Your Prakriti (Dosha)': 'आपकी प्रकृति (दोष)',
-      'Retest': 'पुनः परीक्षण',
-      'Breathe In': 'साँस लें',
-      'Hold': 'रोकें',
-      'Breathe Out': 'साँस छोड़ें',
-      'Close': 'बंद करें',
-      'Your Personalized Ayurvedic Diet': 'आपका व्यक्तिगत आयुर्वेदिक आहार',
-      'Generate My Plan': 'मेरी योजना बनाएं',
-      'years': 'वर्ष',
-      'Budget': 'बजट',
-      'Regional Cuisine': 'क्षेत्रीय भोजन',
-      'Select your region': 'अपना क्षेत्र चुनें',
-      'Mindful Eating': 'माइंडफुल ईटिंग',
-      'Take 3 deep breaths before eating to improve digestion.': 'पाचन सुधारने के लिए खाने से पहले 3 गहरी सांसें लें।',
-      'Done': 'हो गया',
-      'Daily Calorie Target': 'दैनिक कैलोरी लक्ष्य',
-      'Weekly Budget': 'साप्ताहिक बजट',
-      'Daily Hydration': 'दैनिक हाइड्रेशन',
-      'Mood today:': 'आज का मूड:',
+      'Pre-meal Breathing': 'ભોજન પહેલાં શ્વાસ',
+      'Cheat Meal Approver': 'ચીટ મીલ અપ્રૂવર',
+      'Sweet Craving Logger': 'સ્વીટ ક્રેવિંગ લોગર',
+      'Sick Mode (Pathya)': 'બીમાર મોડ (પથ્ય)',
+      'Sleep Routine Alarm': 'ઊંઘ રૂટીન અલાર્મ',
+      'Dadi Maa Ke Nuskhe': 'દાદી મા ના નુસ્ખા',
+      'Your Prakriti (Dosha)': 'તમારી પ્રકૃતિ (દોષ)',
+      'Retest': 'ફરી ટેસ્ટ',
+      'Breathe In': 'શ્વાસ લો',
+      'Hold': 'રોકો',
+      'Breathe Out': 'શ્વાસ છોડો',
+      'Close': 'બંધ કરો',
+      'Your Personalized Ayurvedic Diet': 'તમારો વ્યક્તિગત આયુર્વેદિક આહાર',
+      'Generate My Plan': 'મારી યોજના બનાવો',
+      'years': 'વર્ષ',
+      'Budget': 'બજેટ',
+      'Regional Cuisine': 'પ્રાદેશિક ભોજન',
+      'Select your region': 'તમારો વિસ્તાર પસંદ કરો',
+      'Mindful Eating': 'માઇન્ડફુલ ઇટિંગ',
+      'Take 3 deep breaths before eating to improve digestion.': 'પાચન સુધારવા માટે ખાતા પહેલા 3 ઊંડા શ્વાસ લો.',
+      'Done': 'થઈ ગયું',
+      'Daily Calorie Target': 'દૈનિક કેલરી લક્ષ્ય',
+      'Weekly Budget': 'સાપ્તાહિક બજેટ',
+      'Daily Hydration': 'દૈનિક હાઇડ્રેશન',
+      'Mood today:': 'આજનો મૂડ:',
       
-      # Activity Levels
+      // Activity Levels
       'Sedentary (Desk Job)': 'गतिहीन (डेस्क जॉब)',
       'Lightly Active': 'हल्का सक्रिय',
       'Moderately Active': 'मध्यम सक्रिय',
       'Very Active': 'बहुत सक्रिय',
       'Extremely Active': 'अत्यधिक सक्रिय',
       
-      # Diet Types
+      // Diet Types
       'Vegetarian': 'शाकाहारी',
       'Non-Vegetarian': 'माँसाहारी',
       'Vegan': 'वेगन',
       'Eggetarian': 'अंडाहारी',
       
-      # Budget
+      // Budget
       'Strict Budget (₹200-400/week)': 'सख्त बजट (₹200-400/सप्ताह)',
       'Moderate (₹400-800/week)': 'मध्यम (₹400-800/सप्ताह)',
       'Flexible (₹800+/week)': 'लचीला (₹800+/सप्ताह)',
       
-      # Medical
+      // Medical
       'GERD / Acid Reflux': 'जीईआरडी / एसिड रिफ्लक्स',
-      'PCOS / PCOD': 'पीसीओएस / पीसीओडी',
+      'PCOS / PCOD': 'पीसीओएस / पीसीओડી',
       'Type 2 Diabetes': 'टाइप 2 मधुमेह',
       'Thyroid (Hypothyroid)': 'थायराइड (हाइपोथायराइड)',
       'Thyroid (Hyperthyroid)': 'थायराइड (हाइपरथायराइड)',
@@ -97,7 +97,7 @@ class AppTranslations {
       'IBS (Irritable Bowel Syndrome)': 'आईबीएस (इरिटेबल बाउल सिंड्रोम)',
       'None': 'कोई नहीं',
       
-      # Ayurvedic Complaints
+      // Ayurvedic Complaints
       'Weak Immunity': 'कमजोर प्रतिरक्षा',
       'Rough / Dry Hair': 'रूखे / सूखे बाल',
       'Hair Fall': 'बालों का झड़ना',
@@ -113,7 +113,7 @@ class AppTranslations {
       'Water Retention': 'वाटर रिटेंशन',
       'Irregular Periods': 'अनियमित मासिक धर्म',
 
-      # Regions
+      // Regions
       'North Indian': 'उत्तर भारतीय',
       'South Indian': 'दक्षिण भारतीय',
       'Gujarati': 'गुजराती',
@@ -195,26 +195,30 @@ class AppTranslations {
       'Mindful Eating': 'માઇન્ડફુલ ઇટિંગ',
       'Take 3 deep breaths before eating to improve digestion.': 'પાચન સુધારવા માટે ખાતા પહેલા 3 ઊંડા શ્વાસ લો.',
       'Done': 'થઈ ગયું',
+      'Daily Calorie Target': 'દૈનિક કેલરી લક્ષ્ય',
+      'Weekly Budget': 'સાપ્તાહિક બજેટ',
+      'Daily Hydration': 'દૈનિક હાઇડ્રેશન',
+      'Mood today:': 'આજનો મૂડ:',
       
-      # Activity
+      // Activity
       'Sedentary (Desk Job)': 'બેઠાડુ (ડેસ્ક જોબ)',
       'Lightly Active': 'થોડું સક્રિય',
       'Moderately Active': 'મધ્યમ સક્રિય',
       'Very Active': 'ખૂબ સક્રિય',
       'Extremely Active': 'અત્યંત સક્રિય',
       
-      # Diet
+      // Diet
       'Vegetarian': 'શાકાહારી',
       'Non-Vegetarian': 'માંસાહારી',
       'Vegan': 'વેગન',
       'Eggetarian': 'ઈંડાહારી',
       
-      # Budget
+      // Budget
       'Strict Budget (₹200-400/week)': 'ચુસ્ત બજેટ (₹200-400/અઠવાડિયું)',
       'Moderate (₹400-800/week)': 'મધ્યમ (₹400-800/અઠવાડિયું)',
       'Flexible (₹800+/week)': 'લવચીક (₹800+/અઠવાડિયું)',
       
-      # Medical
+      // Medical
       'GERD / Acid Reflux': 'GERD / એસિડ રિફ્લક્સ',
       'PCOS / PCOD': 'PCOS / PCOD',
       'Type 2 Diabetes': 'ટાઈપ 2 ડાયાબિટીસ',
@@ -227,7 +231,7 @@ class AppTranslations {
       'IBS (Irritable Bowel Syndrome)': 'IBS (ઇરિટેબલ બાઉલ સિન્ડ્રોમ)',
       'None': 'કોઈ નહીં',
       
-      # Ayurvedic Complaints
+      // Ayurvedic Complaints
       'Weak Immunity': 'નબળી રોગપ્રતિકારક શક્તિ',
       'Rough / Dry Hair': 'રફ / સૂકા વાળ',
       'Hair Fall': 'વાળ ખરવા',
@@ -243,7 +247,7 @@ class AppTranslations {
       'Water Retention': 'વોટર રિટેન્શન',
       'Irregular Periods': 'અનિયમિત માસિક ધર્મ',
 
-      # Regions
+      // Regions
       'North Indian': 'ઉત્તર ભારતીય',
       'South Indian': 'દક્ષિણ ભારતીય',
       'Gujarati': 'ગુજરાતી',
