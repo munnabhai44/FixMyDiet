@@ -75,8 +75,8 @@ class AyurvedaTab extends StatelessWidget {
           child: Icon(icon, color: color, size: 20),
         ),
         title: Text(title, style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.textPrimary)),
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        collapsedShape: const RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
         children: items.map((item) {
           return Padding(
