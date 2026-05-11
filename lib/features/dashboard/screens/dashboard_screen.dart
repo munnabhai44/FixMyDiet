@@ -65,54 +65,67 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
     super.dispose();
   }
 
-  @override
-  
-  
-    void _showFastingModeSheet() {
+  void _showFastingModeSheet() {
+    final modes = ['Ekadashi Vrat', 'Navratri Vrat', 'Pradosh Vrat', 'Chaturthi Vrat', 'Sattvic Fast', 'Jain Diet', 'Intermittent Fasting'];
+    final icons = [Icons.auto_awesome, Icons.local_florist_rounded, Icons.nights_stay_rounded, Icons.wb_twilight_rounded, Icons.spa_rounded, Icons.brightness_7_rounded, Icons.timer_rounded];
+    final colors = [Color(0xFFFFD54F), Color(0xFFE57373), Color(0xFF9575CD), Color(0xFFFFB74D), Color(0xFF81C784), Color(0xFF4FC3F7), Color(0xFF90A4AE)];
     showModalBottomSheet(
-      context: context, 
+      context: context,
       backgroundColor: Colors.transparent,
-      builder: (_) => Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: AppColors.cardWhite,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+      isScrollControlled: true,
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(width: 40, height: 4, decoration: BoxDecoration(color: Colors.grey.shade300, borderRadius: BorderRadius.circular(2))),
-            const SizedBox(height: 20),
-            const Icon(Icons.nightlight_round, size: 48, color: AppColors.secondary),
             const SizedBox(height: 16),
-            Text(AppTranslations.t('Fasting Mode', _survey?.selectedLanguage ?? 'English'), style: GoogleFonts.playfairDisplay(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.primary)),
-            const SizedBox(height: 8),
-            Text(AppTranslations.t('Switch to a specialized fasting diet (Ekadashi/Intermittent). Your meals will be reduced to 2 light fast-friendly options.', _survey?.selectedLanguage ?? 'English'), textAlign: TextAlign.center, style: GoogleFonts.poppins(color: AppColors.textSecondary)),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary, 
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25))
-                ),
-                onPressed: () {
-                  setState(() { _isFastingMode = !_isFastingMode; });
-                  Navigator.pop(context);
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(_isFastingMode ? 'Fasting Mode Activated 🌙' : 'Fasting Mode Deactivated ☀️'),
-                    backgroundColor: AppColors.primary,
-                  ));
-                }, 
-                child: Text(_isFastingMode ? 'Deactivate Fasting Mode' : 'Activate Fasting Mode', style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(AppTranslations.t('Fasting Mode', _survey?.selectedLanguage ?? 'English'), style: GoogleFonts.playfairDisplay(fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.primary)),
+            const SizedBox(height: 16),
+            ...List.generate(modes.length, (i) => Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(14),
+                color: colors[i].withOpacity(0.1),
               ),
-            ),
-            const SizedBox(height: 10),
+              child: ListTile(
+                leading: Icon(icons[i], color: colors[i], size: 28),
+                title: Text(modes[i], style: GoogleFonts.poppins(fontWeight: FontWeight.w600, fontSize: 14)),
+                trailing: SizedBox(
+                  width: 90,
+                  height: 36,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      padding: EdgeInsets.zero,
+                    ),
+                    onPressed: () async {
+                      Navigator.pop(ctx);
+                      setState(() => _isLoading = true);
+                      try {
+                        final newPlan = await GeminiService().generateFastingPlan(_survey!, modes[i]);
+                        await _firestore.savePlan(ref.read(currentUserProvider)!.uid, newPlan);
+                        _loadData();
+                      } catch (e) {
+                        setState(() => _isLoading = false);
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error: $e')));
+                      }
+                    },
+                    child: Text('Start', style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.w600)),
+                  ),
+                ),
+              ),
+            )),
           ],
-        )
-    ));
+        ),
+      ),
+    );
   }
 
   void _showShareCard() {
@@ -326,21 +339,21 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
               },
             ),
             const Divider(),
-            ListTile(leading: const Icon(Icons.person_outline, color: AppColors.primary), title: Text(AppTranslations.t('Reset Profile', _survey?.selectedLanguage ?? 'English')), onTap: () async {
+            ListTile(leading: const Icon(Icons.refresh_rounded, color: AppColors.lightGreen), title: Text(AppTranslations.t('Reset Profile', _survey?.selectedLanguage ?? 'English')), onTap: () async {
               final user = ref.read(currentUserProvider);
               if (user != null) {
                 await _firestore.saveUserProfile(user.uid, user.email ?? '', _survey!.copyWith(age: 0));
               }
               if (context.mounted) Navigator.of(context).pushReplacementNamed('/survey');
             }),
-            ListTile(leading: const Icon(Icons.share, color: Colors.blueAccent), title: Text(AppTranslations.t('Share Diet ID', _survey?.selectedLanguage ?? 'English')), onTap: () { Navigator.pop(context); _showShareCard(); }),
-            ListTile(leading: const Icon(Icons.air, color: Colors.lightBlue), title: Text(AppTranslations.t('Pre-meal Breathing', _survey?.selectedLanguage ?? 'English')), onTap: () { Navigator.pop(context); _showBreathingExercise(); }),
-            ListTile(leading: const Icon(Icons.fastfood, color: Colors.redAccent), title: Text(AppTranslations.t('Cheat Meal Approver', _survey?.selectedLanguage ?? 'English')), onTap: () { Navigator.pop(context); _showCheatApprover(); }),
-            ListTile(leading: const Icon(Icons.cookie, color: Colors.orangeAccent), title: Text(AppTranslations.t('Sweet Craving Logger', _survey?.selectedLanguage ?? 'English')), onTap: () { Navigator.pop(context); _showCravingDialog(); }),
-            ListTile(leading: const Icon(Icons.nightlight_round, color: Colors.amber), title: Text(AppTranslations.t('Fasting Mode', _survey?.selectedLanguage ?? 'English')), onTap: () { Navigator.pop(context); _showFastingModeSheet(); }),
-            ListTile(leading: const Icon(Icons.medical_services, color: Colors.red), title: Text(AppTranslations.t('Sick Mode (Pathya)', _survey?.selectedLanguage ?? 'English')), onTap: () { Navigator.pop(context); _showSickModeDialog(); }),
+            ListTile(leading: const Icon(Icons.card_membership_rounded, color: AppColors.secondary), title: Text(AppTranslations.t('Share Diet ID', _survey?.selectedLanguage ?? 'English')), onTap: () { Navigator.pop(context); _showShareCard(); }),
+            ListTile(leading: const Icon(Icons.self_improvement_rounded, color: Color(0xFF7986CB)), title: Text(AppTranslations.t('Pre-meal Breathing', _survey?.selectedLanguage ?? 'English')), onTap: () { Navigator.pop(context); _showBreathingExercise(); }),
+            ListTile(leading: const Icon(Icons.local_pizza_rounded, color: Color(0xFFEF5350)), title: Text(AppTranslations.t('Cheat Meal Approver', _survey?.selectedLanguage ?? 'English')), onTap: () { Navigator.pop(context); _showCheatApprover(); }),
+            ListTile(leading: const Icon(Icons.cake_rounded, color: Color(0xFFFFB74D)), title: Text(AppTranslations.t('Sweet Craving Logger', _survey?.selectedLanguage ?? 'English')), onTap: () { Navigator.pop(context); _showCravingDialog(); }),
+            ListTile(leading: const Icon(Icons.auto_awesome_rounded, color: Color(0xFFFFD54F)), title: Text(AppTranslations.t('Fasting Mode', _survey?.selectedLanguage ?? 'English')), onTap: () { Navigator.pop(context); _showFastingModeSheet(); }),
+            ListTile(leading: const Icon(Icons.healing_rounded, color: Color(0xFFE57373)), title: Text(AppTranslations.t('Sick Mode (Pathya)', _survey?.selectedLanguage ?? 'English')), onTap: () { Navigator.pop(context); _showSickModeDialog(); }),
             
-            ListTile(leading: const Icon(Icons.bedtime, color: Colors.deepPurple), title: Text(AppTranslations.t('Sleep Routine Alarm', _survey?.selectedLanguage ?? 'English')), onTap: () {
+            ListTile(leading: const Icon(Icons.bedtime_rounded, color: Color(0xFF9575CD)), title: Text(AppTranslations.t('Sleep Routine Alarm', _survey?.selectedLanguage ?? 'English')), onTap: () {
               Navigator.pop(context);
               showDialog(context: context, builder: (_) => AlertDialog(
                 title: Text(AppTranslations.t('Ayurvedic Sleep Routine', _survey?.selectedLanguage ?? 'English')),
@@ -367,7 +380,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
               ));
             }),
             const Divider(),
-            ListTile(leading: const Icon(Icons.logout, color: Colors.red), title: Text(AppTranslations.t('Logout', _survey?.selectedLanguage ?? 'English'), style: const TextStyle(color: Colors.red)), onTap: () async {
+            ListTile(leading: const Icon(Icons.logout_rounded, color: Color(0xFFEF5350)), title: Text(AppTranslations.t('Logout', _survey?.selectedLanguage ?? 'English'), style: const TextStyle(color: Colors.red)), onTap: () async {
               await ref.read(authServiceProvider).signOut();
               if (context.mounted) Navigator.of(context).pushReplacementNamed('/');
             }),
@@ -467,31 +480,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
         },
         body: Column(
           children: [
-            // MOOD TRACKER (Level 5 Punishment Feature)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              margin: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.cardWhite,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [BoxShadow(color: AppColors.primary.withOpacity(0.06), blurRadius: 16, offset: const Offset(0, 4))], border: Border.all(color: AppColors.secondary.withOpacity(0.15)),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Text(AppTranslations.t('Mood today:', _survey?.selectedLanguage ?? 'English'), style: GoogleFonts.poppins(fontWeight: FontWeight.bold, fontSize: 14)),
-                  IconButton(icon: const Text('😊', style: TextStyle(fontSize: 24)), onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppTranslations.t('Great! Stay positive and drink water.', _survey?.selectedLanguage ?? 'English'))));
-                  }),
-                  IconButton(icon: const Text('😫', style: TextStyle(fontSize: 24)), onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppTranslations.t('Stressed? Try the breathing exercise in the menu!', _survey?.selectedLanguage ?? 'English'))));
-                  }),
-                  IconButton(icon: const Text('😴', style: TextStyle(fontSize: 24)), onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppTranslations.t('Tired? Get some rest and avoid heavy meals.', _survey?.selectedLanguage ?? 'English'))));
-                  }),
-                ],
-              ),
-            ),
+
 
             
             Expanded(

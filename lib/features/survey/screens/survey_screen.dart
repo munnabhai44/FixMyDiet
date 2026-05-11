@@ -548,7 +548,7 @@ class _SurveyScreenState extends ConsumerState<SurveyScreen> {
                     flex: 2,
                     child: ElevatedButton(
                       onPressed: _nextStep,
-                      child: Text(_currentStep == steps.length - 1 ? 'Generate My Plan' : 'Next'),
+                      child: Text(_currentStep == steps.length - 1 ? AppTranslations.t('Generate My Plan', _selectedLanguage) : AppTranslations.t('Next', _selectedLanguage)),
                     ),
                   ),
                 ],
