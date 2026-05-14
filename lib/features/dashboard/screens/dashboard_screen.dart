@@ -377,6 +377,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
   }
 
   Widget _buildHeroHeader(double bmi) {
+    final calorieGoal = _plan!.dailyCalorieTarget;
+    final caloriesConsumed = 450; // Mocked for now, in a real app this comes from logs
+    final progress = caloriesConsumed / calorieGoal;
+
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
       decoration: const BoxDecoration(
@@ -387,20 +391,60 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> with SingleTi
       child: Column(
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              // Circular Progress for Calories
+              Stack(
+                alignment: Alignment.center,
                 children: [
-                  Text('Current BMI', style: GoogleFonts.inter(color: AppColors.textSecondary, fontSize: 12)),
-                  const SizedBox(height: 4),
-                  Text(bmi.toStringAsFixed(1), style: GoogleFonts.plusJakartaSans(fontSize: 32, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                  SizedBox(
+                    width: 70, height: 70,
+                    child: CircularProgressIndicator(
+                      value: progress,
+                      strokeWidth: 8,
+                      backgroundColor: AppColors.primary.withOpacity(0.1),
+                      color: AppColors.primary,
+                      strokeCap: StrokeCap.round,
+                    ),
+                  ),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('${(progress * 100).round()}%', style: GoogleFonts.plusJakartaSans(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.primary)),
+                      Text('Goal', style: GoogleFonts.inter(fontSize: 8, color: AppColors.textTertiary)),
+                    ],
+                  ),
                 ],
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                decoration: BoxDecoration(color: AppColors.secondary.withOpacity(0.1), borderRadius: BorderRadius.circular(12)),
-                child: Text('Premium Profile', style: GoogleFonts.inter(color: AppColors.secondary, fontWeight: FontWeight.bold, fontSize: 12)),
+              const SizedBox(width: 20),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Current BMI', style: GoogleFonts.inter(color: AppColors.textSecondary, fontSize: 12)),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                          decoration: BoxDecoration(color: AppColors.secondary.withOpacity(0.1), borderRadius: BorderRadius.circular(8)),
+                          child: Text('Premium', style: GoogleFonts.inter(color: AppColors.secondary, fontWeight: FontWeight.bold, fontSize: 10)),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(bmi.toStringAsFixed(1), style: GoogleFonts.plusJakartaSans(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
+                    const SizedBox(height: 4),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: LinearProgressIndicator(
+                        value: 0.6, // Mocked weight progress
+                        backgroundColor: AppColors.divider,
+                        color: AppColors.secondary,
+                        minHeight: 4,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),

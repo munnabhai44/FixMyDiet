@@ -53,24 +53,9 @@ class AppTranslations {
       'Breathe Out': 'सांस बाहर छोड़ें',
       '4-7-8 Breathing': '4-7-8 श्वास अभ्यास',
       'Sleep Routine': 'नींद की दिनचर्या',
-      'Feeling Sick?': 'तबीयत खराब है?',
       'Mindful Eating': 'माइंडफुल ईटिंग',
       'Take 3 deep breaths before eating to improve digestion.': 'पाचन सुधारने के लिए खाने से पहले 3 गहरी सांसें लें।',
       'Done': 'हो गया',
-      'Close': 'બંધ કરો',
-      'Your Personalized Ayurvedic Diet': 'તમારો વ્યક્તિગત આયુર્વેદિક આહાર',
-      'Generate My Plan': 'મારી યોજના બનાવો',
-      'years': 'વર્ષ',
-      'Budget': 'બજેટ',
-      'Regional Cuisine': 'પ્રાદેશિક ભોજન',
-      'Select your region': 'તમારો વિસ્તાર પસંદ કરો',
-      'Mindful Eating': 'માઇન્ડફુલ ઇટિંગ',
-      'Take 3 deep breaths before eating to improve digestion.': 'પાચન સુધારવા માટે ખાતા પહેલા 3 ઊંડા શ્વાસ લો.',
-      'Done': 'થઈ ગયું',
-      'Daily Calorie Target': 'દૈનિક કેલરી લક્ષ્ય',
-      'Weekly Budget': 'સાપ્તાહિક બજેટ',
-      'Daily Hydration': 'દૈનિક હાઇડ્રેશન',
-      'Mood today:': 'આજનો મૂડ:',
       
       // Activity Levels
       'Sedentary (Desk Job)': 'गतिहीन (डेस्क जॉब)',
@@ -92,7 +77,6 @@ class AppTranslations {
       
       // Medical
       'GERD / Acid Reflux': 'जीईआरडी / एसिड रिफ्लक्स',
-      'PCOS / PCOD': 'पीसीओएस / पीसीओડી',
       'Type 2 Diabetes': 'टाइप 2 मधुमेह',
       'Thyroid (Hypothyroid)': 'थायराइड (हाइपोथायराइड)',
       'Thyroid (Hyperthyroid)': 'थायराइड (हाइपरथायराइड)',
