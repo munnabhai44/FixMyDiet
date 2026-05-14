@@ -21,7 +21,7 @@ class _DietPlanTabState extends State<DietPlanTab> {
     int roti = 2;
     showModalBottomSheet(
       context: context,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheetState) => Container(
           padding: const EdgeInsets.all(24),
@@ -123,65 +123,15 @@ class _DietPlanTabState extends State<DietPlanTab> {
   }
 
   void _showMealDetail(BuildContext context, MealEntry meal) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (ctx) => Container(
-        height: MediaQuery.of(context).size.height * 0.8,
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
-        ),
-        child: Column(
-          children: [
-            Container(
-              height: 200,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: Color(meal.colorValue).withOpacity(0.1),
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-              ),
-              child: Center(child: Icon(Icons.restaurant, size: 64, color: Color(meal.colorValue))),
-            ),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(24),
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(child: Text(meal.title, style: GoogleFonts.plusJakartaSans(fontSize: 24, fontWeight: FontWeight.bold))),
-                      Text(meal.time, style: GoogleFonts.inter(color: AppColors.textSecondary)),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  Text('Description', style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 8),
-                  Text(
-                    meal.description.split(' | NUTRITION: ')[0],
-                    style: GoogleFonts.inter(fontSize: 16, color: AppColors.textPrimary, height: 1.5),
-                  ),
-                  const SizedBox(height: 24),
-                  if (meal.description.contains(' | NUTRITION: ')) ...[
-                    Text('Nutrition Facts', style: GoogleFonts.plusJakartaSans(fontSize: 18, fontWeight: FontWeight.bold)),
-                    const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(color: AppColors.background, borderRadius: BorderRadius.circular(16)),
-                      child: Text(
-                        meal.description.split(' | NUTRITION: ')[1].replaceAll(', ', '\n• '),
-                        style: GoogleFonts.inter(height: 1.6),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    // Generate high-quality Unsplash image based on meal name
+    String imageUrl = 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?q=80&w=800'; // Default Dal Chawal
+    if (meal.title.toLowerCase().contains('poha')) imageUrl = 'https://images.unsplash.com/photo-1626132647523-66f5bf380027?q=80&w=800';
+    if (meal.title.toLowerCase().contains('khichdi')) imageUrl = 'https://images.unsplash.com/photo-1606491956689-2ea84b72c444?q=80&w=800';
+    if (meal.title.toLowerCase().contains('idli')) imageUrl = 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?q=80&w=800';
+    if (meal.title.toLowerCase().contains('roti') || meal.title.toLowerCase().contains('sabzi')) imageUrl = 'https://images.unsplash.com/photo-1601050690597-df0568f70950?q=80&w=800';
+    if (meal.title.toLowerCase().contains('fruits')) imageUrl = 'https://images.unsplash.com/photo-1596591606975-97ee5cef3a1e?q=80&w=800';
+
+    Navigator.push(context, MaterialPageRoute(builder: (context) => _MealDetailScreen(meal: meal, imageUrl: imageUrl)));
   }
 
   @override
@@ -242,72 +192,75 @@ class _DietPlanTabState extends State<DietPlanTab> {
                 if (index == 1) meal = MealEntry('Light Fruits & Milk', 'Sunset', 'Easy digestion before night. | NUTRITION: 250 kcal', 0xFF1E392A);
               }
 
-              return GestureDetector(
-                onTap: () => _showMealDetail(context, meal),
-                child: Container(
-                  margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 10, offset: const Offset(0, 4))],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: IntrinsicHeight(
-                      child: Row(
-                        children: [
-                          Container(width: 6, color: Color(meal.colorValue)),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(meal.time, style: GoogleFonts.inter(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
-                                      const Icon(Icons.chevron_right, size: 16, color: AppColors.textTertiary),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(meal.title, style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary)),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    meal.description.split(' | NUTRITION: ')[0],
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: GoogleFonts.inter(fontSize: 13, color: AppColors.textSecondary, height: 1.4),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Row(
-                                    children: [
-                                      _SmallActionButton(
-                                        icon: Icons.info_outline,
-                                        label: 'Info',
-                                        onTap: () => _showMealDetail(context, meal),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      _SmallActionButton(
-                                        icon: Icons.add_circle_outline,
-                                        label: 'Log',
-                                        color: AppColors.secondary,
-                                        onTap: () => _showLogMealDialog(context, meal.title),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      _SmallActionButton(
-                                        icon: Icons.currency_rupee,
-                                        label: 'Swap',
-                                        color: Colors.green,
-                                        onTap: () => _showSmartSwapSheet(context, meal.description),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+              return Hero(
+                tag: 'meal_${meal.title}_$index',
+                child: GestureDetector(
+                  onTap: () => _showMealDetail(context, meal),
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 10, offset: const Offset(0, 4))],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: IntrinsicHeight(
+                        child: Row(
+                          children: [
+                            Container(width: 6, color: Color(meal.colorValue)),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(meal.time, style: GoogleFonts.inter(fontSize: 12, color: AppColors.textSecondary, fontWeight: FontWeight.w600)),
+                                        const Icon(Icons.chevron_right, size: 16, color: AppColors.textTertiary),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Material(color: Colors.transparent, child: Text(meal.title, style: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textPrimary))),
+                                    const SizedBox(height: 6),
+                                    Material(color: Colors.transparent, child: Text(
+                                      meal.description.split(' | NUTRITION: ')[0],
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: GoogleFonts.inter(fontSize: 13, color: AppColors.textSecondary, height: 1.4),
+                                    )),
+                                    const SizedBox(height: 12),
+                                    Row(
+                                      children: [
+                                        _SmallActionButton(
+                                          icon: Icons.info_outline,
+                                          label: 'Recipe',
+                                          onTap: () => _showMealDetail(context, meal),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        _SmallActionButton(
+                                          icon: Icons.add_circle_outline,
+                                          label: 'Log',
+                                          color: AppColors.secondary,
+                                          onTap: () => _showLogMealDialog(context, meal.title),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        _SmallActionButton(
+                                          icon: Icons.currency_rupee,
+                                          label: 'Swap',
+                                          color: Colors.green,
+                                          onTap: () => _showSmartSwapSheet(context, meal.description),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -342,6 +295,151 @@ class _SmallActionButton extends StatelessWidget {
           Text(label, style: GoogleFonts.inter(fontSize: 12, color: activeColor, fontWeight: FontWeight.w600)),
         ],
       ),
+    );
+  }
+}
+
+class _MealDetailScreen extends StatelessWidget {
+  final MealEntry meal;
+  final String imageUrl;
+
+  const _MealDetailScreen({required this.meal, required this.imageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 350,
+            pinned: true,
+            backgroundColor: AppColors.primary,
+            flexibleSpace: FlexibleSpaceBar(
+              background: Hero(
+                tag: 'meal_${meal.title}',
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    Image.network(imageUrl, fit: BoxFit.cover),
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Colors.black.withOpacity(0.4), Colors.transparent, Colors.black.withOpacity(0.6)],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              title: Text(meal.title, style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _DetailStat(Icons.schedule, meal.time),
+                      _DetailStat(Icons.star_outline, 'Ayurvedic Choice'),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  Text('Description', style: GoogleFonts.plusJakartaSans(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.primary)),
+                  const SizedBox(height: 12),
+                  Text(
+                    meal.description.split(' | NUTRITION: ')[0],
+                    style: GoogleFonts.inter(fontSize: 16, color: AppColors.textPrimary, height: 1.6),
+                  ),
+                  const SizedBox(height: 32),
+                  _buildNutritionCard(),
+                  const SizedBox(height: 32),
+                  Text('Preparation Guide', style: GoogleFonts.plusJakartaSans(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.primary)),
+                  const SizedBox(height: 12),
+                  _buildRecipeStep(1, 'Prepare ingredients: Ensure they are fresh and organic.'),
+                  _buildRecipeStep(2, 'Cook mindfully: Maintain a peaceful state of mind.'),
+                  _buildRecipeStep(3, 'Serve warm: Ayurveda suggests eating warm food for best digestion.'),
+                  const SizedBox(height: 100),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNutritionCard() {
+    final nutrition = meal.description.contains(' | NUTRITION: ') 
+        ? meal.description.split(' | NUTRITION: ')[1]
+        : 'Calories: ~350 kcal, Protein: 10g, Carbs: 45g';
+    
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [BoxShadow(color: AppColors.shadowLight, blurRadius: 15, offset: const Offset(0, 8))],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.analytics_outlined, color: AppColors.secondary),
+              const SizedBox(width: 8),
+              Text('Nutrition Facts', style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.bold, fontSize: 16)),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            nutrition.replaceAll(', ', '\n• '),
+            style: GoogleFonts.inter(fontSize: 14, color: AppColors.textPrimary, height: 1.8),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRecipeStep(int step, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            radius: 12,
+            backgroundColor: AppColors.secondary.withOpacity(0.2),
+            child: Text('$step', style: GoogleFonts.inter(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.secondary)),
+          ),
+          const SizedBox(width: 12),
+          Expanded(child: Text(text, style: GoogleFonts.inter(fontSize: 15, color: AppColors.textPrimary, height: 1.4))),
+        ],
+      ),
+    );
+  }
+}
+
+class _DetailStat extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const _DetailStat(this.icon, this.label);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: AppColors.textSecondary),
+        const SizedBox(width: 6),
+        Text(label, style: GoogleFonts.inter(fontSize: 14, color: AppColors.textSecondary, fontWeight: FontWeight.w500)),
+      ],
     );
   }
 }
